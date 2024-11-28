@@ -25,6 +25,10 @@ class ZineService: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
     
+    var hasError: Bool {
+            error != nil
+        }
+    
     private let dataUrl = "https://raw.githubusercontent.com/jbw004/zine-data/main/data.json"
     
     func fetchZines() {

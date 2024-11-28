@@ -29,12 +29,14 @@ struct CustomNavigationView: View {
                     Spacer()
                 } else {
                     Spacer()
-                    Image("app-logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 30)
-                    Spacer()
                 }
+                
+                Image("app-logo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 30)
+                
+                Spacer()
                 
                 Button {
                     showingAuthSheet = true
@@ -44,10 +46,10 @@ struct CustomNavigationView: View {
                         .foregroundColor(.primary)
                 }
             }
+            .frame(height: 44)  // Fixed height for top row
             .padding(.horizontal)
-            .padding(.top, 8)
             
-            // Tab buttons (only show in main view)
+            // Tab buttons
             if !isDetailView {
                 HStack(spacing: 24) {
                     ForEach(["Zines", "Discussion"].indices, id: \.self) { index in
@@ -70,11 +72,16 @@ struct CustomNavigationView: View {
                     
                     Spacer()
                 }
+                .frame(height: 40)  // Fixed height for tab row
                 .padding(.horizontal)
-                .padding(.vertical, 8)
             }
         }
-        .background(.ultraThinMaterial)
+        .frame(height: isDetailView ? 44 : 84)  // Fixed total height
+        .background {
+            Color(.systemBackground)
+                .opacity(0.8)
+                .background(.ultraThinMaterial)
+        }
         .sheet(isPresented: $showingAuthSheet) {
             NavigationView {
                 AuthenticationView()

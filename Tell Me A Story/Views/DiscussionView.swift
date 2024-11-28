@@ -6,16 +6,14 @@ struct DiscussionView: View {
     
     var body: some View {
         VStack(spacing: 20) {
+            Spacer()
+            
             Text("Discord Community")
                 .font(.title)
-                .padding()
             
             if authService.isAuthenticated {
                 Button("Join Discord") {
-                    // We'll replace this URL with your actual Discord invite
-                    if let url = URL(string: "YOUR_DISCORD_INVITE_URL") {
-                        UIApplication.shared.open(url)
-                    }
+                    // Discord invite link handling will go here
                 }
                 .buttonStyle(.borderedProminent)
             } else {
@@ -29,16 +27,14 @@ struct DiscussionView: View {
                     .buttonStyle(.bordered)
                 }
             }
+            
+            Spacer()
         }
+        .padding()
         .sheet(isPresented: $showingAuthSheet) {
             NavigationView {
                 AuthenticationView()
             }
         }
     }
-}
-
-#Preview {
-    DiscussionView()
-        .environmentObject(AuthenticationService())
 }

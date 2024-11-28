@@ -5,6 +5,7 @@ struct ContentView: View {
     @State private var selectedTab = 0
     @State private var showHeader = true
     @State private var lastScrollOffset: CGFloat = 0
+    @State private var showingSubmissionSheet = false
     
     var body: some View {
         NavigationView {
@@ -44,7 +45,7 @@ struct ContentView: View {
                 HStack {
                     Spacer()
                     Button(action: {
-                        // Add zine/issue action
+                        showingSubmissionSheet = true
                     }) {
                         Image(systemName: "plus.circle.fill")
                             .resizable()
@@ -59,6 +60,9 @@ struct ContentView: View {
                 .padding(.trailing)
                 .padding(.bottom, 20)
             }
+        }
+        .sheet(isPresented: $showingSubmissionSheet) {
+            SubmissionTypeSelectionView()
         }
         .environmentObject(authService)
     }
