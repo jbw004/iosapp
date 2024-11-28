@@ -19,33 +19,42 @@ struct ZineSubmissionForm: View {
     @State private var isSubmitting = false
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var showCelebration = false  // Add this with your other @State variables
     
     var body: some View {
-        Form {
-            Section("Cover Image") {
-                ImagePickerView(selectedImage: $selectedImage)
-            }
-            
-            Section("Zine Details") {
-                TextField("Name", text: $name)
-                TextField("Bio", text: $bio, axis: .vertical)
-                    .lineLimit(3...6)
-                TextField("Instagram URL", text: $instagramUrl)
-                    .textInputAutocapitalization(.never)
-                    .keyboardType(.URL)
-            }
-            
-            Section {
-                Button(action: submit) {
-                    if isSubmitting {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                    } else {
+        ZStack {  // New wrapper
+            Form {
+                Section("Cover Image") {
+                    ImagePickerView(selectedImage: $selectedImage)
+                }
+                
+                Section("Zine Details") {
+                    TextField("Name", text: $name)
+                    TextField("Bio", text: $bio, axis: .vertical)
+                        .lineLimit(3...6)
+                    TextField("Instagram URL", text: $instagramUrl)
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.URL)
+                }
+                
+                Section {
+                    Button(action: submit) {
                         Text("Submit")
                     }
+                    .frame(maxWidth: .infinity)
+                    .disabled(isSubmitting || !isValid)
                 }
-                .frame(maxWidth: .infinity)
-                .disabled(isSubmitting || !isValid)
+            }
+            .disabled(isSubmitting)  // Disable the whole form while submitting
+                
+            if isSubmitting {
+                LoadingView()
+            }
+                
+            if showCelebration {
+                ConfettiView {
+                    dismiss()
+                }
             }
         }
         .navigationTitle("Submit Zine")
@@ -68,6 +77,7 @@ struct ZineSubmissionForm: View {
     
     private func submit() {
         guard let image = selectedImage else { return }
+        isSubmitting = true
         
         Task {
             do {
@@ -77,8 +87,10 @@ struct ZineSubmissionForm: View {
                     instagramUrl: instagramUrl,
                     coverImage: image
                 )
-                dismiss()
+                isSubmitting = false
+                showCelebration = true  // Show celebration instead of immediate dismiss
             } catch {
+                isSubmitting = false
                 errorMessage = error.localizedDescription
                 showError = true
             }
@@ -90,7 +102,7 @@ struct IssueSubmissionForm: View {
     @EnvironmentObject var coordinator: SubmissionCoordinator
     @Environment(\.dismiss) private var dismiss
     @StateObject private var authService = AuthenticationService()
-    @StateObject private var zineService = ZineService()  // Add this line
+    @StateObject private var zineService = ZineService()
     
     @State private var selectedZine: Zine?
     @State private var title = ""
@@ -101,34 +113,43 @@ struct IssueSubmissionForm: View {
     @State private var isSubmitting = false
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var showCelebration = false
     
     var body: some View {
-        Form {
-            Section("Cover Image") {
-                ImagePickerView(selectedImage: $selectedImage)
-            }
-            
-            Section("Issue Details") {
-                ZinePicker(selectedZine: $selectedZine)
-                    .environmentObject(zineService)
-                TextField("Title", text: $title)
-                DatePicker("Published Date", selection: $publishedDate, displayedComponents: .date)
-                TextField("Link URL", text: $linkUrl)
-                    .textInputAutocapitalization(.never)
-                    .keyboardType(.URL)
-            }
-            
-            Section {
-                Button(action: submit) {
-                    if isSubmitting {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                    } else {
+        ZStack {
+            Form {
+                Section("Cover Image") {
+                    ImagePickerView(selectedImage: $selectedImage)
+                }
+                
+                Section("Issue Details") {
+                    ZinePicker(selectedZine: $selectedZine)
+                        .environmentObject(zineService)
+                    TextField("Title", text: $title)
+                    DatePicker("Published Date", selection: $publishedDate, displayedComponents: .date)
+                    TextField("Link URL", text: $linkUrl)
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.URL)
+                }
+                
+                Section {
+                    Button(action: submit) {
                         Text("Submit")
                     }
+                    .frame(maxWidth: .infinity)
+                    .disabled(isSubmitting || !isValid)
                 }
-                .frame(maxWidth: .infinity)
-                .disabled(isSubmitting || !isValid)
+            }
+            .disabled(isSubmitting)
+            
+            if isSubmitting {
+                LoadingView()
+            }
+            
+            if showCelebration {
+                ConfettiView {
+                    dismiss()
+                }
             }
         }
         .navigationTitle("Submit Issue")
@@ -151,6 +172,7 @@ struct IssueSubmissionForm: View {
     
     private func submit() {
         guard let zine = selectedZine, let image = selectedImage else { return }
+        isSubmitting = true
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
@@ -165,8 +187,10 @@ struct IssueSubmissionForm: View {
                     linkUrl: linkUrl,
                     coverImage: image
                 )
-                dismiss()
+                isSubmitting = false
+                showCelebration = true
             } catch {
+                isSubmitting = false
                 errorMessage = error.localizedDescription
                 showError = true
             }

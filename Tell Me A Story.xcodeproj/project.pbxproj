@@ -39,6 +39,7 @@
 		0EF5EDED2CF82FEE006E1D10 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 0EF5EDEC2CF82FEE006E1D10 /* FirebaseFirestore */; };
 		0EF5EDEF2CF82FEE006E1D10 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 0EF5EDEE2CF82FEE006E1D10 /* FirebaseStorage */; };
 		0EF5EDF12CF83422006E1D10 /* SubmissionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF5EDF02CF83422006E1D10 /* SubmissionModels.swift */; };
+		0EF5EDF42CF9047A006E1D10 /* CelebrationComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF5EDF32CF9047A006E1D10 /* CelebrationComponents.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +66,7 @@
 		0EF5EDE02CF82BD5006E1D10 /* SubmissionFormViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmissionFormViews.swift; sourceTree = "<group>"; };
 		0EF5EDE22CF82D19006E1D10 /* ZinePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZinePicker.swift; sourceTree = "<group>"; };
 		0EF5EDF02CF83422006E1D10 /* SubmissionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmissionModels.swift; sourceTree = "<group>"; };
+		0EF5EDF32CF9047A006E1D10 /* CelebrationComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationComponents.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +144,7 @@
 		0EA58C8E2CF4069F00063653 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				0EF5EDF22CF9044D006E1D10 /* Components */,
 				0EF5EDDD2CF82B7C006E1D10 /* Submissions */,
 				0E69F7592CF409BF00252A27 /* ZineListView.swift */,
 				0EAC36582CF42A0B004842B2 /* ZineDetailView.swift */,
@@ -180,6 +183,14 @@
 				0EF5EDE02CF82BD5006E1D10 /* SubmissionFormViews.swift */,
 			);
 			path = Submissions;
+			sourceTree = "<group>";
+		};
+		0EF5EDF22CF9044D006E1D10 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				0EF5EDF32CF9047A006E1D10 /* CelebrationComponents.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -276,6 +287,7 @@
 				0EAC36592CF42A0B004842B2 /* ZineDetailView.swift in Sources */,
 				0E69F75A2CF409BF00252A27 /* ZineListView.swift in Sources */,
 				0EF5EDCF2CF6AC58006E1D10 /* AuthenticationService.swift in Sources */,
+				0EF5EDF42CF9047A006E1D10 /* CelebrationComponents.swift in Sources */,
 				0EF5EDDC2CF7A867006E1D10 /* ScrollViewOffset.swift in Sources */,
 				0E69F7562CF4087B00252A27 /* Zine.swift in Sources */,
 				0EF5EDDA2CF7A7D1006E1D10 /* CustomNavigationView.swift in Sources */,
