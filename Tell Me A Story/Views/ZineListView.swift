@@ -40,7 +40,9 @@ struct ZineListView: View {
                     .cornerRadius(8)
                     
                     Button {
-                        zineService.fetchZines()
+                        Task {
+                            await zineService.fetchZines()
+                        }
                     } label: {
                         Text("Try Again")
                             .foregroundColor(.white)
@@ -62,7 +64,9 @@ struct ZineListView: View {
         .padding()
         .onAppear {
             if zineService.zines.isEmpty {
-                zineService.fetchZines()
+                Task {
+                    await zineService.fetchZines()
+                }
             }
         }
     }

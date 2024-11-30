@@ -1,6 +1,6 @@
 import Foundation
 
-struct Zine: Identifiable, Codable {
+struct Zine: Identifiable, Codable, Hashable {
     let id: String
     let name: String
     let bio: String
@@ -8,7 +8,7 @@ struct Zine: Identifiable, Codable {
     let instagramUrl: String
     let issues: [Issue]
     
-    struct Issue: Identifiable, Codable {
+    struct Issue: Identifiable, Codable, Hashable {
         let id: String
         let title: String
         let coverImageUrl: String

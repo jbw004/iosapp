@@ -14,12 +14,14 @@ struct ZinePicker: View {
                         .foregroundColor(.gray)
                 }
                 .padding(.vertical, 8)
-            } else if zineService.hasError {  // Changed to use hasError
+            } else if zineService.hasError {
                 HStack {
                     Text("Failed to load zines")
                         .foregroundColor(.red)
                     Button("Retry") {
-                        zineService.fetchZines()
+                        Task {
+                            await zineService.fetchZines()
+                        }
                     }
                     .foregroundColor(.blue)
                 }
@@ -49,7 +51,9 @@ struct ZinePicker: View {
         }
         .onAppear {
             if zineService.zines.isEmpty {
-                zineService.fetchZines()
+                Task {
+                    await zineService.fetchZines()
+                }
             }
         }
     }

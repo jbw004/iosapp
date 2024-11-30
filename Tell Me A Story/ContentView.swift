@@ -2,13 +2,17 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var authService = AuthenticationService()
+    @StateObject private var zineService = ZineService()
     @State private var selectedTab = 0
     @State private var showHeader = true
     @State private var lastScrollOffset: CGFloat = 0
     @State private var showingSubmissionSheet = false
+    @Binding var deepLinkZineId: String?
+    @State private var selectedZine: Zine?
+    @State private var navigationPath = NavigationPath()
     
     var body: some View {
-        NavigationView {
+        NavigationStack(path: $navigationPath) {
             ZStack(alignment: .bottom) {
                 VStack(spacing: 0) {
                     // Custom Header
@@ -60,10 +64,28 @@ struct ContentView: View {
                 .padding(.trailing)
                 .padding(.bottom, 20)
             }
+            .navigationDestination(for: Zine.self) { zine in
+                ZineDetailView(zine: zine)
+            }
         }
         .sheet(isPresented: $showingSubmissionSheet) {
             SubmissionTypeSelectionView()
         }
         .environmentObject(authService)
+        .environmentObject(zineService)
+        .onChange(of: deepLinkZineId) { oldValue, newValue in
+            if let zineId = newValue {
+                Task {
+                    await zineService.fetchZines()
+                    if let zine = zineService.zines.first(where: { $0.id == zineId }) {
+                        await MainActor.run {
+                            navigationPath.append(zine)
+                            selectedZine = zine
+                            deepLinkZineId = nil
+                        }
+                    }
+                }
+            }
+        }
     }
 }

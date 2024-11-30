@@ -26,50 +26,44 @@ class ZineService: ObservableObject {
     @Published var error: Error?
     
     var hasError: Bool {
-            error != nil
-        }
+        error != nil
+    }
     
     private let dataUrl = "https://raw.githubusercontent.com/jbw004/zine-data/main/data.json"
     
-    func fetchZines() {
-        isLoading = true
-        error = nil
+    func fetchZines() async {
+        DispatchQueue.main.async {
+            self.isLoading = true
+            self.error = nil
+        }
         
         guard let url = URL(string: dataUrl) else {
-            error = ZineServiceError.invalidURL(dataUrl)
-            isLoading = false
+            DispatchQueue.main.async {
+                self.error = ZineServiceError.invalidURL(self.dataUrl)
+                self.isLoading = false
+            }
             return
         }
         
-        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            
+            let decoder = JSONDecoder()
+            let response = try decoder.decode(ZineResponse.self, from: data)
+            
             DispatchQueue.main.async {
-                self?.isLoading = false
-                
-                if let error = error {
-                    self?.error = ZineServiceError.networkError(error.localizedDescription)
-                    return
-                }
-                
-                guard let data = data else {
-                    self?.error = ZineServiceError.noData
-                    return
-                }
-                
-                do {
-                    let decoder = JSONDecoder()
-                    // Removed the global snake case strategy since we're handling it in CodingKeys
-                    let response = try decoder.decode(ZineResponse.self, from: data)
-                    self?.zines = response.zines
-                } catch {
-                    let rawJson = String(data: data, encoding: .utf8) ?? "Unable to convert data to string"
-                    let jsonPreview = String(rawJson.prefix(200)) + "..."
-                    let errorDetails = """
-                    Error: \(error)
-                    JSON Preview: \(jsonPreview)
-                    """
-                    self?.error = ZineServiceError.decodingError(errorDetails)
+                self.isLoading = false
+                self.zines = response.zines
+            }
+        } catch let error {
+            DispatchQueue.main.async {
+                self.isLoading = false
+                if let urlError = error as? URLError {
+                    self.error = ZineServiceError.networkError(urlError.localizedDescription)
+                } else {
+                    self.error = ZineServiceError.decodingError(error.localizedDescription)
                 }
             }
-        }.resume()
+        }
     }
 }

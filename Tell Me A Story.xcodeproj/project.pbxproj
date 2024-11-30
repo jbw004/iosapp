@@ -67,6 +67,7 @@
 		0EF5EDE22CF82D19006E1D10 /* ZinePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZinePicker.swift; sourceTree = "<group>"; };
 		0EF5EDF02CF83422006E1D10 /* SubmissionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmissionModels.swift; sourceTree = "<group>"; };
 		0EF5EDF32CF9047A006E1D10 /* CelebrationComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationComponents.swift; sourceTree = "<group>"; };
+		0EF5EDF72CFA47B9006E1D10 /* Tell-Me-A-Story-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Tell-Me-A-Story-Info.plist"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +112,7 @@
 		0EA58C7E2CF4050F00063653 /* Tell Me A Story */ = {
 			isa = PBXGroup;
 			children = (
+				0EF5EDF72CFA47B9006E1D10 /* Tell-Me-A-Story-Info.plist */,
 				0EF5EDD42CF6D796006E1D10 /* Tell Me A Story.entitlements */,
 				0EA58C902CF406B400063653 /* Utilities */,
 				0EA58C8F2CF406AC00063653 /* Services */,
@@ -436,6 +438,7 @@
 				DEVELOPMENT_TEAM = 23FCT7483X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Tell-Me-A-Story-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -466,6 +469,7 @@
 				DEVELOPMENT_TEAM = 23FCT7483X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Tell-Me-A-Story-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
