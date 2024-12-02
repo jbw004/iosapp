@@ -10,6 +10,7 @@
 		0E69F7562CF4087B00252A27 /* Zine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E69F7552CF4087B00252A27 /* Zine.swift */; };
 		0E69F7582CF4093E00252A27 /* ZineService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E69F7572CF4093E00252A27 /* ZineService.swift */; };
 		0E69F75A2CF409BF00252A27 /* ZineListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E69F7592CF409BF00252A27 /* ZineListView.swift */; };
+		0E83C34A2CFD976D005C177D /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E83C3492CFD976D005C177D /* AnalyticsService.swift */; };
 		0EA58C802CF4050F00063653 /* Tell_Me_A_StoryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA58C7F2CF4050F00063653 /* Tell_Me_A_StoryApp.swift */; };
 		0EA58C822CF4050F00063653 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA58C812CF4050F00063653 /* ContentView.swift */; };
 		0EA58C842CF4051600063653 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0EA58C832CF4051600063653 /* Assets.xcassets */; };
@@ -46,6 +47,7 @@
 		0E69F7552CF4087B00252A27 /* Zine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zine.swift; sourceTree = "<group>"; };
 		0E69F7572CF4093E00252A27 /* ZineService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZineService.swift; sourceTree = "<group>"; };
 		0E69F7592CF409BF00252A27 /* ZineListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZineListView.swift; sourceTree = "<group>"; };
+		0E83C3492CFD976D005C177D /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		0EA58C7C2CF4050F00063653 /* Tell Me A Story.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tell Me A Story.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0EA58C7F2CF4050F00063653 /* Tell_Me_A_StoryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tell_Me_A_StoryApp.swift; sourceTree = "<group>"; };
 		0EA58C812CF4050F00063653 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 				0E69F7572CF4093E00252A27 /* ZineService.swift */,
 				0EAC365A2CF42A83004842B2 /* ImageCache.swift */,
 				0EF5EDCE2CF6AC58006E1D10 /* AuthenticationService.swift */,
+				0E83C3492CFD976D005C177D /* AnalyticsService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -288,6 +291,7 @@
 				0EA58C822CF4050F00063653 /* ContentView.swift in Sources */,
 				0EAC36592CF42A0B004842B2 /* ZineDetailView.swift in Sources */,
 				0E69F75A2CF409BF00252A27 /* ZineListView.swift in Sources */,
+				0E83C34A2CFD976D005C177D /* AnalyticsService.swift in Sources */,
 				0EF5EDCF2CF6AC58006E1D10 /* AuthenticationService.swift in Sources */,
 				0EF5EDF42CF9047A006E1D10 /* CelebrationComponents.swift in Sources */,
 				0EF5EDDC2CF7A867006E1D10 /* ScrollViewOffset.swift in Sources */,

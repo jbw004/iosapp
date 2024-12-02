@@ -73,24 +73,37 @@ struct EmailAuthView: View {
         }
         .padding()
         .navigationTitle(isSignUp ? "Sign Up" : "Sign In")
+        .onChange(of: authService.isAuthenticated) { wasAuthenticated, isAuthenticated in
+            if isAuthenticated {
+                dismiss()
+            }
+        }
     }
 }
 
 struct AuthenticationView: View {
     @EnvironmentObject var authService: AuthenticationService
     @Environment(\.dismiss) var dismiss
+    @State private var showingSignUp = false
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
+        VStack(spacing: 20) {
+            if showingSignUp {
+                AuthenticationButton(isSignUp: true)
+            } else {
                 AuthenticationButton(isSignUp: false)
-                
-                Button("Need an account? Sign Up") {
-                    // Navigate to sign up
-                }
-                .foregroundColor(.blue)
             }
-            .navigationTitle("Sign In")
+            
+            Button(showingSignUp ? "Already have an account? Sign In" : "Need an account? Sign Up") {
+                showingSignUp.toggle()
+            }
+            .foregroundColor(.blue)
+        }
+        .navigationTitle(showingSignUp ? "Sign Up" : "Sign In")
+        .onChange(of: authService.isAuthenticated) { wasAuthenticated, isAuthenticated in
+            if isAuthenticated {
+                dismiss()
+            }
         }
     }
 }

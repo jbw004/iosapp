@@ -5,20 +5,20 @@ struct AuthenticationButtonView: View {
     @State private var showingAuthSheet = false
     
     var body: some View {
-        Group {
+        Button {
             if authService.isAuthenticated {
-                Button {
-                    authService.signOut()
-                } label: {
-                    Label("Sign Out", systemImage: "person.crop.circle.badge.minus")
-                }
+                authService.signOut()
             } else {
-                Button {
-                    showingAuthSheet = true
-                } label: {
-                    Label("Sign In", systemImage: "person.crop.circle.badge.plus")
-                }
+                showingAuthSheet = true
             }
+        } label: {
+            Text(authService.isAuthenticated ? "Logout" : "Login")
+                .font(.system(size: 15))
+                .foregroundColor(.primary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.secondary.opacity(0.15))
+                .cornerRadius(8)
         }
         .sheet(isPresented: $showingAuthSheet) {
             NavigationView {

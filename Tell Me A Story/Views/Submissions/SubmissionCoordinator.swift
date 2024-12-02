@@ -7,6 +7,13 @@ import FirebaseStorage
 enum SubmissionType {
     case zine
     case issue
+    
+    var analyticsName: String {
+        switch self {
+        case .zine: return "zine"
+        case .issue: return "issue"
+        }
+    }
 }
 
 class SubmissionCoordinator: ObservableObject {
@@ -18,6 +25,7 @@ class SubmissionCoordinator: ObservableObject {
     
     private let storage = Storage.storage()
     private let db = Firestore.firestore()
+    private let analytics = AnalyticsService.shared
     
     func submitZine(name: String, bio: String, instagramUrl: String, coverImage: UIImage) async throws {
         guard let userId = Auth.auth().currentUser?.uid else {
@@ -27,6 +35,9 @@ class SubmissionCoordinator: ObservableObject {
         
         isSubmitting = true
         defer { isSubmitting = false }
+        
+        // Track submission start
+        analytics.trackEvent(.submissionStarted(type: SubmissionType.zine.analyticsName))
         
         do {
             // Upload image
@@ -53,7 +64,17 @@ class SubmissionCoordinator: ObservableObject {
                 "instagramUrl": submission.instagramUrl,
                 "coverImagePath": submission.coverImagePath
             ])
+            
+            // Track successful submission
+            analytics.trackEvent(.submissionCompleted(type: SubmissionType.zine.analyticsName))
+            
         } catch {
+            // Track failed submission
+            analytics.trackEvent(.submissionFailed(
+                type: SubmissionType.zine.analyticsName,
+                error: error.localizedDescription
+            ))
+            
             errorMessage = error.localizedDescription
             showError = true
             throw error
@@ -68,6 +89,9 @@ class SubmissionCoordinator: ObservableObject {
         
         isSubmitting = true
         defer { isSubmitting = false }
+        
+        // Track submission start
+        analytics.trackEvent(.submissionStarted(type: SubmissionType.issue.analyticsName))
         
         do {
             // Upload image
@@ -96,7 +120,17 @@ class SubmissionCoordinator: ObservableObject {
                 "coverImagePath": submission.coverImagePath,
                 "linkUrl": submission.linkUrl
             ])
+            
+            // Track successful submission
+            analytics.trackEvent(.submissionCompleted(type: SubmissionType.issue.analyticsName))
+            
         } catch {
+            // Track failed submission
+            analytics.trackEvent(.submissionFailed(
+                type: SubmissionType.issue.analyticsName,
+                error: error.localizedDescription
+            ))
+            
             errorMessage = error.localizedDescription
             showError = true
             throw error
@@ -106,14 +140,24 @@ class SubmissionCoordinator: ObservableObject {
 
 struct SubmissionTypeSelectionView: View {
     @StateObject private var coordinator = SubmissionCoordinator()
+    @EnvironmentObject private var authService: AuthenticationService
     @Environment(\.dismiss) private var dismiss
+    @State private var showingAuthSheet = false
     
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                Text("What would you like to submit?")
-                    .font(.headline)
+                if !authService.isAuthenticated {
+                    Text("Login to Submit a Zine or Issue")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                        .padding(.bottom, 10)
+                } else {
+                    Text("What would you like to submit?")
+                        .font(.headline)
+                }
                 
+                // Zine Button
                 NavigationLink {
                     ZineSubmissionForm()
                         .environmentObject(coordinator)
@@ -121,11 +165,13 @@ struct SubmissionTypeSelectionView: View {
                     Text("New Zine")
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.blue)
+                        .background(authService.isAuthenticated ? Color.blue : Color.gray.opacity(0.3))
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
+                .disabled(!authService.isAuthenticated)
                 
+                // Issue Button
                 NavigationLink {
                     IssueSubmissionForm()
                         .environmentObject(coordinator)
@@ -133,9 +179,18 @@ struct SubmissionTypeSelectionView: View {
                     Text("New Issue")
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.blue)
+                        .background(authService.isAuthenticated ? Color.blue : Color.gray.opacity(0.3))
                         .foregroundColor(.white)
                         .cornerRadius(10)
+                }
+                .disabled(!authService.isAuthenticated)
+                
+                if !authService.isAuthenticated {
+                    Button("Login") {
+                        showingAuthSheet = true
+                    }
+                    .padding(.top, 20)
+                    .foregroundColor(.blue)
                 }
             }
             .padding()
@@ -147,6 +202,11 @@ struct SubmissionTypeSelectionView: View {
                         dismiss()
                     }
                 }
+            }
+        }
+        .sheet(isPresented: $showingAuthSheet) {
+            NavigationView {
+                AuthenticationView()
             }
         }
     }

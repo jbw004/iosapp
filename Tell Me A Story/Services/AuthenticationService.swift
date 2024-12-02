@@ -10,6 +10,7 @@ class AuthenticationService: NSObject, ObservableObject {
     
     // Needed for Sign in with Apple
     private var currentNonce: String?
+    private let analytics = AnalyticsService.shared
     
     override init() {
         super.init()
@@ -19,6 +20,11 @@ class AuthenticationService: NSObject, ObservableObject {
             DispatchQueue.main.async {
                 self?.user = user
                 self?.isAuthenticated = user != nil
+                
+                // Set user ID for analytics if available
+                if let userId = user?.uid {
+                    self?.analytics.setUserIdentifier(userId)
+                }
             }
         }
     }
@@ -28,8 +34,13 @@ class AuthenticationService: NSObject, ObservableObject {
             DispatchQueue.main.async {
                 if let error = error {
                     self?.authError = error
+                    self?.analytics.trackEvent(.signInFailure(
+                        method: "email",
+                        error: error.localizedDescription
+                    ))
                 } else {
                     self?.authError = nil
+                    self?.analytics.trackEvent(.signInSuccess(method: "email"))
                 }
             }
         }
@@ -40,8 +51,13 @@ class AuthenticationService: NSObject, ObservableObject {
             DispatchQueue.main.async {
                 if let error = error {
                     self?.authError = error
+                    self?.analytics.trackEvent(.signUpFailure(
+                        method: "email",
+                        error: error.localizedDescription
+                    ))
                 } else {
                     self?.authError = nil
+                    self?.analytics.trackEvent(.signUpSuccess(method: "email"))
                 }
             }
         }
@@ -52,6 +68,10 @@ class AuthenticationService: NSObject, ObservableObject {
             try Auth.auth().signOut()
         } catch {
             self.authError = error
+            analytics.trackEvent(.signInFailure(
+                method: "signout",
+                error: error.localizedDescription
+            ))
         }
     }
     
@@ -117,34 +137,43 @@ extension AuthenticationService: ASAuthorizationControllerDelegate {
     }
     
     func authorizationController(controller: ASAuthorizationController,
-                                   didCompleteWithAuthorization authorization: ASAuthorization) {
-            if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
-               let appleIDToken = appleIDCredential.identityToken,
-               let idTokenString = String(data: appleIDToken, encoding: .utf8),
-               let nonce = currentNonce {
-                
-                let credential = OAuthProvider.appleCredential(
-                    withIDToken: idTokenString,
-                    rawNonce: nonce,
-                    fullName: appleIDCredential.fullName
-                )
-                
-                Auth.auth().signIn(with: credential) { [weak self] result, error in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            self?.authError = error
-                        } else {
-                            self?.authError = nil
-                        }
+                               didCompleteWithAuthorization authorization: ASAuthorization) {
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
+           let appleIDToken = appleIDCredential.identityToken,
+           let idTokenString = String(data: appleIDToken, encoding: .utf8),
+           let nonce = currentNonce {
+            
+            let credential = OAuthProvider.appleCredential(
+                withIDToken: idTokenString,
+                rawNonce: nonce,
+                fullName: appleIDCredential.fullName
+            )
+            
+            Auth.auth().signIn(with: credential) { [weak self] result, error in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        self?.authError = error
+                        self?.analytics.trackEvent(.signInFailure(
+                            method: "apple",
+                            error: error.localizedDescription
+                        ))
+                    } else {
+                        self?.authError = nil
+                        self?.analytics.trackEvent(.signInSuccess(method: "apple"))
                     }
                 }
             }
         }
+    }
     
     func authorizationController(controller: ASAuthorizationController,
                                didCompleteWithError error: Error) {
         DispatchQueue.main.async {
             self.authError = error
+            self.analytics.trackEvent(.signInFailure(
+                method: "apple",
+                error: error.localizedDescription
+            ))
         }
     }
 }

@@ -19,7 +19,16 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
+        
+        // Track app open
+        AnalyticsService.shared.trackEvent(.appOpen)
+        
         return true
+    }
+    
+    // Track when app becomes active (e.g., after background)
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        AnalyticsService.shared.trackEvent(.appOpen)
     }
 }
 

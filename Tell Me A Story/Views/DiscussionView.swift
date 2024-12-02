@@ -4,6 +4,8 @@ struct DiscussionView: View {
     @EnvironmentObject var authService: AuthenticationService
     @State private var showingAuthSheet = false
     
+    private let discordInviteUrl = "https://discord.gg/DX2WmK5Ny2"
+    
     var body: some View {
         VStack(spacing: 20) {
             Spacer()
@@ -13,7 +15,9 @@ struct DiscussionView: View {
             
             if authService.isAuthenticated {
                 Button("Join Discord") {
-                    // Discord invite link handling will go here
+                    if let url = URL(string: discordInviteUrl) {
+                        UIApplication.shared.open(url)
+                    }
                 }
                 .buttonStyle(.borderedProminent)
             } else {

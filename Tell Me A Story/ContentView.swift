@@ -46,22 +46,22 @@ struct ContentView: View {
                 }
                 
                 // Footer with + button
+                // Footer with + button section in ContentView
                 HStack {
                     Spacer()
                     Button(action: {
                         showingSubmissionSheet = true
                     }) {
-                        Image(systemName: "plus.circle.fill")
-                            .resizable()
-                            .frame(width: 44, height: 44)
-                            .foregroundColor(.blue)
+                        Image(systemName: "plus")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(width: 54, height: 54)
+                            .background(Color.blue)
+                            .clipShape(Circle())
+                            .shadow(color: Color.black.opacity(0.15), radius: 3, x: 0, y: 2)
                     }
-                    .padding()
-                    .background(Color.white)
-                    .clipShape(Circle())
-                    .shadow(radius: 4)
                 }
-                .padding(.trailing)
+                .padding(.trailing, 20)
                 .padding(.bottom, 20)
             }
             .navigationDestination(for: Zine.self) { zine in

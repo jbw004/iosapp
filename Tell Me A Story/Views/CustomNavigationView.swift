@@ -14,36 +14,41 @@ struct CustomNavigationView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            // Safe area spacer
+            Color(.systemBackground)
+                .opacity(0.60)
+                .background(.ultraThinMaterial)
+                .ignoresSafeArea(edges: .top)
+                .frame(height: 0)
+            
             // Top row with logo/back button and sign in button
-            HStack {
-                if isDetailView {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                            Text("Zines")
+            ZStack {
+                // Left-aligned back button (if detail view)
+                HStack {
+                    if isDetailView {
+                        Button(action: {
+                            presentationMode.wrappedValue.dismiss()
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "chevron.left")
+                                Text("Zines")
+                            }
+                            .foregroundColor(.primary)
                         }
-                        .foregroundColor(.primary)
                     }
-                    Spacer()
-                } else {
                     Spacer()
                 }
                 
+                // Centered logo
                 Image("app-logo")
                     .resizable()
                     .scaledToFit()
                     .frame(height: 30)
                 
-                Spacer()
-                
-                Button {
-                    showingAuthSheet = true
-                } label: {
-                    Image(systemName: authService.isAuthenticated ? "person.circle.fill" : "person.circle")
-                        .font(.system(size: 22))
-                        .foregroundColor(.primary)
+                // Right-aligned auth button
+                HStack {
+                    Spacer()
+                    AuthenticationButtonView()
                 }
             }
             .frame(height: 44)  // Fixed height for top row
@@ -79,13 +84,8 @@ struct CustomNavigationView: View {
         .frame(height: isDetailView ? 44 : 84)  // Fixed total height
         .background {
             Color(.systemBackground)
-                .opacity(0.8)
+                .opacity(0.60)
                 .background(.ultraThinMaterial)
-        }
-        .sheet(isPresented: $showingAuthSheet) {
-            NavigationView {
-                AuthenticationView()
-            }
         }
     }
 }
