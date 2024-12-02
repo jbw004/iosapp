@@ -1,4 +1,37 @@
 import SwiftUI
+import LinkPresentation
+
+class ZineActivityItemSource: NSObject, UIActivityItemSource {
+    let url: String
+    let zine: Zine
+    
+    init(url: String, zine: Zine) {
+        self.url = url
+        self.zine = zine
+        super.init()
+    }
+    
+    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
+        return url
+    }
+    
+    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
+        return url
+    }
+    
+    func activityViewControllerLinkMetadata(_ activityViewController: UIActivityViewController) -> LPLinkMetadata? {
+        let metadata = LPLinkMetadata()
+        metadata.originalURL = URL(string: url)
+        metadata.url = URL(string: url)
+        metadata.title = "Check out issues of \(zine.name)!"
+        
+        if let imageURL = URL(string: zine.coverImageUrl) {
+            metadata.imageProvider = NSItemProvider(contentsOf: imageURL)
+        }
+        
+        return metadata
+    }
+}
 
 struct ZineDetailView: View {
     let zine: Zine
@@ -39,14 +72,14 @@ struct ZineDetailView: View {
                                 .foregroundColor(.gray)
                                 
                             Button(action: {
-                                // Create a full URL that includes the zine ID
                                 let url = "https://app.tellmeastory.press/zine/\(zine.id)"
+                                let activityItem = ZineActivityItemSource(url: url, zine: zine)
+                                
                                 let activityVC = UIActivityViewController(
-                                    activityItems: [url],
+                                    activityItems: [activityItem],
                                     applicationActivities: nil
                                 )
                                 
-                                // Get the window scene
                                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                                    let window = windowScene.windows.first,
                                    let rootVC = window.rootViewController {
@@ -69,7 +102,6 @@ struct ZineDetailView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical)
-                    
                     
                     // About Section
                     VStack(alignment: .leading, spacing: 12) {

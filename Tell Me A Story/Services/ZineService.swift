@@ -31,6 +31,51 @@ class ZineService: ObservableObject {
     
     private let dataUrl = "https://raw.githubusercontent.com/jbw004/zine-data/main/data.json"
     
+    // Date formatter for parsing publishedDate strings
+    private lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return formatter
+    }()
+    
+    private func parseDate(_ dateString: String) -> Date {
+        // Return a very old date if parsing fails, so invalid dates sort to the end
+        dateFormatter.date(from: dateString) ?? Date.distantPast
+    }
+    
+    private func sortZines(_ zines: [Zine]) -> [Zine] {
+        // First, create new zines with sorted issues
+        let zinesWithSortedIssues = zines.map { zine in
+            // Sort issues by published date in descending order (most recent first)
+            let sortedIssues = zine.issues.sorted { first, second in
+                let firstDate = parseDate(first.publishedDate)
+                let secondDate = parseDate(second.publishedDate)
+                return firstDate > secondDate
+            }
+            
+            // Create a new zine with the sorted issues
+            return Zine(
+                id: zine.id,
+                name: zine.name,
+                bio: zine.bio,
+                coverImageUrl: zine.coverImageUrl,
+                instagramUrl: zine.instagramUrl,
+                issues: sortedIssues
+            )
+        }
+        
+        // Then sort zines by issue count (descending) with name as secondary criteria
+        return zinesWithSortedIssues.sorted { first, second in
+            if first.issues.count != second.issues.count {
+                return first.issues.count > second.issues.count
+            }
+            // If issue counts are equal, sort alphabetically by name
+            return first.name.localizedCaseInsensitiveCompare(second.name) == .orderedAscending
+        }
+    }
+    
     func fetchZines() async {
         DispatchQueue.main.async {
             self.isLoading = true
@@ -51,9 +96,12 @@ class ZineService: ObservableObject {
             let decoder = JSONDecoder()
             let response = try decoder.decode(ZineResponse.self, from: data)
             
+            // Apply sorting before updating published property
+            let sortedZines = sortZines(response.zines)
+            
             DispatchQueue.main.async {
                 self.isLoading = false
-                self.zines = response.zines
+                self.zines = sortedZines
             }
         } catch let error {
             DispatchQueue.main.async {
