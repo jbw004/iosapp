@@ -17,6 +17,8 @@ enum AnalyticsEventType {
     case submissionStarted(type: String)
     case submissionCompleted(type: String)
     case submissionFailed(type: String, error: String)
+    case followZine(zineId: String, zineName: String)
+    case unfollowZine(zineId: String, zineName: String)
     
     var name: String {
         switch self {
@@ -32,6 +34,8 @@ enum AnalyticsEventType {
         case .submissionStarted: return "submission_started"
         case .submissionCompleted: return "submission_completed"
         case .submissionFailed: return "submission_failed"
+        case .followZine: return "follow_zine"
+        case .unfollowZine: return "unfollow_zine"
         }
     }
     
@@ -85,6 +89,12 @@ enum AnalyticsEventType {
             return [
                 "type": type,
                 "error": error
+            ]
+            
+        case .followZine(let zineId, let zineName), .unfollowZine(let zineId, let zineName):
+            return [
+                "zine_id": zineId,
+                "zine_name": zineName
             ]
         }
     }

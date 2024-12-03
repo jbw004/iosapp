@@ -24,11 +24,11 @@ class AuthenticationService: NSObject, ObservableObject {
                 // Set user ID for analytics if available
                 if let userId = user?.uid {
                     self?.analytics.setUserIdentifier(userId)
+                    NotificationService.shared.setupForUser() // Add this line
                 }
             }
         }
     }
-    
     func signIn(email: String, password: String) {
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
             DispatchQueue.main.async {

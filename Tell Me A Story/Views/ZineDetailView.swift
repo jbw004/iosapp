@@ -39,8 +39,13 @@ class ZineActivityItemSource: NSObject, UIActivityItemSource {
 
 struct ZineDetailView: View {
     let zine: Zine
+    @EnvironmentObject var authService: AuthenticationService
+    @StateObject private var notificationService = NotificationService.shared
+    @State private var isShowingAuthAlert = false
+    @State private var isLoading = false
     @State private var showHeader = true
     @State private var lastScrollOffset: CGFloat = 0
+    @State private var showingAuthSheet = false
     private let analytics = AnalyticsService.shared
     
     var body: some View {
@@ -64,31 +69,74 @@ struct ZineDetailView: View {
                                 .font(.system(size: 15))
                                 .foregroundColor(.gray)
                             
-                            Button(action: {
-                                let url = "https://app.tellmeastory.press/zine/\(zine.id)"
-                                let activityItem = ZineActivityItemSource(url: url, zine: zine)
-                                
-                                let activityVC = UIActivityViewController(
-                                    activityItems: [activityItem],
-                                    applicationActivities: nil
-                                )
-                                
-                                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                                   let window = windowScene.windows.first,
-                                   let rootVC = window.rootViewController {
-                                    rootVC.present(activityVC, animated: true)
+                            HStack(spacing: 16) {
+                                // Follow/Unfollow Button
+                                Button(action: {
+                                    if !authService.isAuthenticated {
+                                        isShowingAuthAlert = true
+                                        return
+                                    }
+                                    
+                                    Task {
+                                        isLoading = true
+                                        do {
+                                            if notificationService.isFollowingZine(zine.id) {
+                                                try await notificationService.unfollowZine(zine)
+                                            } else {
+                                                try await notificationService.requestNotificationPermissions()
+                                                try await notificationService.followZine(zine)
+                                            }
+                                        } catch {
+                                            notificationService.error = error as? NotificationError
+                                        }
+                                        isLoading = false
+                                    }
+                                }) {
+                                    HStack(spacing: 4) {
+                                        if isLoading {
+                                            ProgressView()
+                                                .progressViewStyle(CircularProgressViewStyle())
+                                        } else {
+                                            Image(systemName: notificationService.isFollowingZine(zine.id) ? "bell.fill" : "bell")
+                                            Text(notificationService.isFollowingZine(zine.id) ? "Following" : "Follow")
+                                        }
+                                    }
+                                    .font(.system(size: 15))
+                                    .foregroundColor(.blue)
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 12)
+                                    .background(Color.blue.opacity(0.1))
+                                    .cornerRadius(8)
                                 }
-                            }) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "square.and.arrow.up")
-                                    Text("Share")
+                                .disabled(isLoading)
+
+                                // Share Button
+                                Button(action: {
+                                    let url = "https://app.tellmeastory.press/zine/\(zine.id)"
+                                    let activityItem = ZineActivityItemSource(url: url, zine: zine)
+                                    
+                                    let activityVC = UIActivityViewController(
+                                        activityItems: [activityItem],
+                                        applicationActivities: nil
+                                    )
+                                    
+                                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                       let window = windowScene.windows.first,
+                                       let rootVC = window.rootViewController {
+                                        rootVC.present(activityVC, animated: true)
+                                    }
+                                }) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "square.and.arrow.up")
+                                        Text("Share")
+                                    }
+                                    .font(.system(size: 15))
+                                    .foregroundColor(.blue)
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 12)
+                                    .background(Color.blue.opacity(0.1))
+                                    .cornerRadius(8)
                                 }
-                                .font(.system(size: 15))
-                                .foregroundColor(.blue)
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 12)
-                                .background(Color.blue.opacity(0.1))
-                                .cornerRadius(8)
                             }
                             .padding(.top, 8)
                         }
@@ -212,6 +260,20 @@ struct ZineDetailView: View {
                                             zineId: zine.id,
                                             zineName: zine.name
                                         ))
+                                    }
+                                    .alert("Sign in Required", isPresented: $isShowingAuthAlert) {
+                                        Button("Sign In") {
+                                            // Use your existing auth sheet
+                                            showingAuthSheet = true
+                                        }
+                                        Button("Cancel", role: .cancel) { }
+                                    } message: {
+                                        Text("Please sign in to follow zines and receive notifications")
+                                    }
+                                    .sheet(isPresented: $showingAuthSheet) {
+                                        NavigationView {
+                                            AuthenticationView()
+                                        }
                                     }
                                 }
                             }
