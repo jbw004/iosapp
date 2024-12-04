@@ -7,28 +7,34 @@ class AuthenticationService: NSObject, ObservableObject {
     @Published var user: User?
     @Published var isAuthenticated = false
     @Published var authError: Error?
+    @Published var debugMessage: String?  // Add this for debugging
+
     
     // Needed for Sign in with Apple
     private var currentNonce: String?
     private let analytics = AnalyticsService.shared
     
     override init() {
-        super.init()
-        
-        // Store the listener to keep it alive
-        _ = Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            DispatchQueue.main.async {
-                self?.user = user
-                self?.isAuthenticated = user != nil
-                
-                // Set user ID for analytics if available
-                if let userId = user?.uid {
-                    self?.analytics.setUserIdentifier(userId)
-                    NotificationService.shared.setupForUser() // Add this line
+            super.init()
+            
+            debugMessage = "AuthenticationService initialized"
+            
+            // Store the listener to keep it alive
+            _ = Auth.auth().addStateDidChangeListener { [weak self] _, user in
+                DispatchQueue.main.async {
+                    self?.debugMessage = "Auth state changed: user \(user != nil ? "logged in" : "logged out")"
+                    self?.user = user
+                    self?.isAuthenticated = user != nil
+                    
+                    // Set user ID for analytics if available
+                    if let userId = user?.uid {
+                        self?.analytics.setUserIdentifier(userId)
+                        self?.debugMessage = "Setting up notifications for user: \(userId)"
+                        NotificationService.shared.setupForUser()
+                    }
                 }
             }
         }
-    }
     func signIn(email: String, password: String) {
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
             DispatchQueue.main.async {
@@ -66,6 +72,7 @@ class AuthenticationService: NSObject, ObservableObject {
     func signOut() {
         do {
             try Auth.auth().signOut()
+            NotificationService.shared.cleanup()  // Add this line
         } catch {
             self.authError = error
             analytics.trackEvent(.signInFailure(

@@ -40,7 +40,7 @@ class ZineActivityItemSource: NSObject, UIActivityItemSource {
 struct ZineDetailView: View {
     let zine: Zine
     @EnvironmentObject var authService: AuthenticationService
-    @StateObject private var notificationService = NotificationService.shared
+    @EnvironmentObject var notificationService: NotificationService
     @State private var isShowingAuthAlert = false
     @State private var isLoading = false
     @State private var showHeader = true
@@ -139,6 +139,31 @@ struct ZineDetailView: View {
                                 }
                             }
                             .padding(.top, 8)
+                            
+                            // Add Debug Information Section here
+                                                        VStack(spacing: 8) {
+                                                            if let authDebug = authService.debugMessage {
+                                                                Text("Auth: \(authDebug)")
+                                                                    .font(.caption)
+                                                                    .foregroundColor(.gray)
+                                                            }
+                                                            
+                                                            if let notifDebug = notificationService.debugMessage {
+                                                                Text("Notifications: \(notifDebug)")
+                                                                    .font(.caption)
+                                                                    .foregroundColor(.gray)
+                                                            }
+                                                            
+                                                            if let error = notificationService.error {
+                                                                Text("Error: \(error.localizedDescription)")
+                                                                    .font(.caption)
+                                                                    .foregroundColor(.red)
+                                                            }
+                                                        }
+                                                        .padding()
+                                                        .background(Color.gray.opacity(0.1))
+                                                        .cornerRadius(8)
+                                                        .padding(.horizontal)
                         }
                     }
                     .frame(maxWidth: .infinity)

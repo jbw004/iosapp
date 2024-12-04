@@ -22,6 +22,7 @@ struct ContentView: View {
                     }
                     
                     // Content
+                    // Content
                     ZStack {
                         if selectedTab == 0 {
                             ScrollView {
@@ -40,7 +41,7 @@ struct ContentView: View {
                             }
                             .coordinateSpace(name: "scroll")
                         } else {
-                            DiscussionView()
+                            FollowingView()
                         }
                     }
                 }

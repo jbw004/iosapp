@@ -57,14 +57,14 @@ struct CustomNavigationView: View {
             // Tab buttons
             if !isDetailView {
                 HStack(spacing: 24) {
-                    ForEach(["Zines", "Discussion"].indices, id: \.self) { index in
+                    ForEach(["Zines", "Following"].indices, id: \.self) { index in
                         Button(action: {
                             withAnimation {
                                 selectedTab = index
                             }
                         }) {
                             VStack(spacing: 8) {
-                                Text(["Zines", "Discussion"][index])
+                                Text(["Zines", "Following"][index])
                                     .fontWeight(selectedTab == index ? .semibold : .regular)
                                     .foregroundColor(selectedTab == index ? .primary : .gray)
                                 
