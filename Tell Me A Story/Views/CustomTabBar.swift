@@ -89,21 +89,129 @@ struct CustomTabBar: View {
     }
 }
 
-// MARK: - Placeholder Views
 struct BookmarksView: View {
+    @EnvironmentObject var bookmarkService: BookmarkService
+    @EnvironmentObject var authService: AuthenticationService
+    @State private var groupedBookmarks: [String: [BookmarkedIssue]] = [:]
+    @State private var isLoading = false
+    @State private var showingAuthSheet = false
+    
     var body: some View {
-        VStack {
-            Image(systemName: "bookmark")
-                .font(.largeTitle)
-                .padding()
-            Text("Bookmarks Coming Soon")
-                .font(.headline)
-            Text("Save your favorite zines for later")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+        Group {
+            if !authService.isAuthenticated {
+                VStack(spacing: 16) {
+                    Image(systemName: "bookmark")
+                        .font(.system(size: 48))
+                        .foregroundColor(.gray)
+                    
+                    Text("Sign in to see your bookmarks")
+                        .font(.headline)
+                    
+                    Button("Sign In") {
+                        showingAuthSheet = true
+                    }
+                    .buttonStyle(.bordered)
+                }
+            } else if isLoading {
+                ProgressView()
+            } else if groupedBookmarks.isEmpty {
+                VStack(spacing: 16) {
+                    Image(systemName: "bookmark")
+                        .font(.system(size: 48))
+                        .foregroundColor(.gray)
+                    
+                    Text("No bookmarks yet")
+                        .font(.headline)
+                    
+                    Text("Bookmark issues to read them later")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            } else {
+                List {
+                    ForEach(Array(groupedBookmarks.keys.sorted()), id: \.self) { zineName in
+                        Section(header: Text(zineName)) {
+                            ForEach(groupedBookmarks[zineName] ?? []) { bookmark in
+                                Button {
+                                    if let url = URL(string: bookmark.linkUrl) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                } label: {
+                                    HStack(spacing: 16) {
+                                        CachedAsyncImage(url: bookmark.coverImageUrl) { image in
+                                            image
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                        } placeholder: {
+                                            Rectangle()
+                                                .foregroundColor(.gray.opacity(0.2))
+                                        }
+                                        .frame(width: 60, height: 60)
+                                        .cornerRadius(8)
+                                        
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(bookmark.issueTitle)
+                                                .font(.system(size: 15, weight: .semibold))
+                                            Text(bookmark.publishedDate)
+                                                .font(.system(size: 13))
+                                                .foregroundColor(.gray)
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        Button {
+                                            Task {
+                                                // Create a temporary Zine.Issue and Zine for the toggleBookmark call
+                                                let issue = Zine.Issue(
+                                                    id: bookmark.issueId,
+                                                    title: bookmark.issueTitle,
+                                                    coverImageUrl: bookmark.coverImageUrl,
+                                                    linkUrl: bookmark.linkUrl,
+                                                    publishedDate: bookmark.publishedDate
+                                                )
+                                                let zine = Zine(
+                                                    id: bookmark.zineId,
+                                                    name: bookmark.zineName,
+                                                    bio: "",
+                                                    coverImageUrl: "",
+                                                    instagramUrl: "",
+                                                    issues: []
+                                                )
+                                                try await bookmarkService.toggleBookmark(for: issue, in: zine)
+                                                await loadBookmarks()
+                                            }
+                                        } label: {
+                                            Image(systemName: "bookmark.fill")
+                                                .foregroundColor(.blue)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .listStyle(.insetGrouped)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
+        .sheet(isPresented: $showingAuthSheet) {
+            NavigationView {
+                AuthenticationView()
+            }
+        }
+        .task {
+            await loadBookmarks()
+        }
+    }
+    
+    private func loadBookmarks() async {
+        isLoading = true
+        do {
+            groupedBookmarks = try await bookmarkService.fetchGroupedBookmarks()
+        } catch {
+            // Handle error if needed
+            print("Error loading bookmarks: \(error)")
+        }
+        isLoading = false
     }
 }
 

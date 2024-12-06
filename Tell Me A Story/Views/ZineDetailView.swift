@@ -41,6 +41,7 @@ struct ZineDetailView: View {
     let zine: Zine
     @EnvironmentObject var authService: AuthenticationService
     @EnvironmentObject var notificationService: NotificationService
+    @EnvironmentObject var bookmarkService: BookmarkService
     @State private var isShowingAuthAlert = false
     @State private var isLoading = false
     @State private var showHeader = true
@@ -234,6 +235,26 @@ struct ZineDetailView: View {
                                     }
                                     
                                     Spacer()
+                                    
+                                    Button {
+                                        if !authService.isAuthenticated {
+                                            isShowingAuthAlert = true
+                                            return
+                                        }
+                                        
+                                        Task {
+                                            do {
+                                                try await bookmarkService.toggleBookmark(for: issue, in: zine)
+                                            } catch {
+                                                if let bookmarkError = error as? BookmarkService.BookmarkError {
+                                                    bookmarkService.error = bookmarkError
+                                                }
+                                            }
+                                        }
+                                    } label: {
+                                        Image(systemName: bookmarkService.isIssueBookmarked(issue.id) ? "bookmark.fill" : "bookmark")
+                                            .foregroundColor(.blue)
+                                    }
                                 }
                             }
                                                         .buttonStyle(PlainButtonStyle())
@@ -262,13 +283,23 @@ struct ZineDetailView: View {
                                             zineName: zine.name
                                         ))
                                         
-                                        // Add this new code to update last viewed
+                                        // Bookmarks loading
+                                        Task {
+                                            do {
+                                                try await bookmarkService.loadBookmarkedIssues()
+                                            } catch {
+                                                if let bookmarkError = error as? BookmarkService.BookmarkError {
+                                                    bookmarkService.error = bookmarkError
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Your existing last viewed update code
                                         if notificationService.isFollowingZine(zine.id) {
                                             Task {
                                                 do {
                                                     try await notificationService.updateLastViewed(for: zine)
                                                 } catch {
-                                                    // Handle error if needed
                                                     print("Failed to update last viewed: \(error)")
                                                 }
                                             }

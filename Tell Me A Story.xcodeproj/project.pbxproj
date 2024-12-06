@@ -20,6 +20,7 @@
 		0E6CC8FB2CFF8C1B00BBB7C8 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6CC8FA2CFF8C1B00BBB7C8 /* NotificationService.swift */; };
 		0E6CC8FD2CFFC41700BBB7C8 /* FollowingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6CC8FC2CFFC41600BBB7C8 /* FollowingView.swift */; };
 		0E6CC8FF2D02CA5800BBB7C8 /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6CC8FE2D02CA5800BBB7C8 /* CustomTabBar.swift */; };
+		0E6CC9012D02E81300BBB7C8 /* BookmarkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6CC9002D02E81300BBB7C8 /* BookmarkService.swift */; };
 		0E83C34A2CFD976D005C177D /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E83C3492CFD976D005C177D /* AnalyticsService.swift */; };
 		0EA58C802CF4050F00063653 /* Tell_Me_A_StoryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA58C7F2CF4050F00063653 /* Tell_Me_A_StoryApp.swift */; };
 		0EA58C822CF4050F00063653 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA58C812CF4050F00063653 /* ContentView.swift */; };
@@ -60,6 +61,7 @@
 		0E6CC8FA2CFF8C1B00BBB7C8 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		0E6CC8FC2CFFC41600BBB7C8 /* FollowingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingView.swift; sourceTree = "<group>"; };
 		0E6CC8FE2D02CA5800BBB7C8 /* CustomTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
+		0E6CC9002D02E81300BBB7C8 /* BookmarkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkService.swift; sourceTree = "<group>"; };
 		0E83C3492CFD976D005C177D /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		0EA58C7C2CF4050F00063653 /* Tell Me A Story.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tell Me A Story.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0EA58C7F2CF4050F00063653 /* Tell_Me_A_StoryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tell_Me_A_StoryApp.swift; sourceTree = "<group>"; };
@@ -192,6 +194,7 @@
 				0EF5EDCE2CF6AC58006E1D10 /* AuthenticationService.swift */,
 				0E83C3492CFD976D005C177D /* AnalyticsService.swift */,
 				0E6CC8FA2CFF8C1B00BBB7C8 /* NotificationService.swift */,
+				0E6CC9002D02E81300BBB7C8 /* BookmarkService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -330,6 +333,7 @@
 				0E69F7562CF4087B00252A27 /* Zine.swift in Sources */,
 				0EF5EDDA2CF7A7D1006E1D10 /* CustomNavigationView.swift in Sources */,
 				0EA58C802CF4050F00063653 /* Tell_Me_A_StoryApp.swift in Sources */,
+				0E6CC9012D02E81300BBB7C8 /* BookmarkService.swift in Sources */,
 				0EAC365D2CF42AE6004842B2 /* ZineRowView.swift in Sources */,
 				0EAC365B2CF42A83004842B2 /* ImageCache.swift in Sources */,
 				0EF5EDF12CF83422006E1D10 /* SubmissionModels.swift in Sources */,
