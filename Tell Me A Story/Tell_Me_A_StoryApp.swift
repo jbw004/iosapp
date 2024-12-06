@@ -3,7 +3,7 @@ import FirebaseCore
 import FirebaseMessaging
 import UserNotifications
 
-class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     let deepLinkManager = DeepLinkManager.shared
     let notificationService = NotificationService.shared
     
@@ -11,11 +11,18 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         
-        // Set messaging delegate
-        Messaging.messaging().delegate = self
-        
         // Set notification center delegate
         UNUserNotificationCenter.current().delegate = self
+        
+        // Initialize notification service immediately
+        Task {
+            do {
+                try await notificationService.requestNotificationPermissions()
+                try await notificationService.verifyNotificationSetup()
+            } catch {
+                print("Notification setup failed: \(error)")
+            }
+        }
         
         // Track app open
         AnalyticsService.shared.trackEvent(.appOpen)
@@ -28,15 +35,6 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
     }
-    
-    // MARK: - MessagingDelegate
-    
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        // Store FCM token if needed
-        print("Firebase registration token: \(String(describing: fcmToken))")
-    }
-    
-    // MARK: - UNUserNotificationCenterDelegate
     
     // Handle notifications when app is in foreground
     func userNotificationCenter(_ center: UNUserNotificationCenter,
@@ -70,6 +68,10 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         }
         
         completionHandler()
+    }
+    
+    func application(_ application: UIApplication,
+                    didFailToRegisterForRemoteNotificationsWithError error: Error) {
     }
 }
 

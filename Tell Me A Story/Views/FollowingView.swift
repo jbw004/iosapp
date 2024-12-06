@@ -4,37 +4,33 @@ struct FollowingView: View {
     @EnvironmentObject var zineService: ZineService
     @EnvironmentObject var notificationService: NotificationService
     @State private var selectedZine: Zine?
-    @State private var debugMessage: String = ""
     
     var followedZines: [Zine] {
         let allZines = zineService.zines
-        let followedIds = notificationService.followedZines
         
-        debugMessage = """
-        Total zines: \(allZines.count)
-        Followed IDs: \(followedIds.joined(separator: ", "))
-        """
-        
-        let filtered = allZines.filter { zine in
-            let isFollowing = notificationService.isFollowingZine(zine.id)
-            debugMessage += "\nZine \(zine.id): isFollowing = \(isFollowing)"
-            return isFollowing
-        }
-        
-        debugMessage += "\nFiltered count: \(filtered.count)"
-        return filtered
+        return allZines
+            .filter { notificationService.isFollowingZine($0.id) }
+            .sorted { zine1, zine2 in
+                // Get timestamps from metadata
+                let notification1 = notificationService.followedZinesMetadata[zine1.id]?.lastNotificationAt
+                let notification2 = notificationService.followedZinesMetadata[zine2.id]?.lastNotificationAt
+                
+                // Sort by notification timestamp, newest first
+                // If no notification, use an old date
+                let date1 = notification1 ?? .distantPast
+                let date2 = notification2 ?? .distantPast
+                
+                return date1 > date2
+            }
+    }
+    
+    func isRecent(_ date: Date?) -> Bool {
+        guard let date = date else { return false }
+        return Date().timeIntervalSince(date) < 24 * 60 * 60 // 24 hours
     }
     
     var body: some View {
         ScrollView {
-            // Add debug view at the top
-            Text(debugMessage)
-                .font(.caption)
-                .foregroundColor(.gray)
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(8)
-                .padding()
             
             VStack(spacing: 16) {
                 if followedZines.isEmpty {
@@ -65,9 +61,23 @@ struct FollowingView: View {
                                 
                                 // Text content
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(zine.name)
-                                        .font(.system(size: 17, weight: .semibold))
-                                        .foregroundColor(.primary)
+                                    HStack {
+                                        Text(zine.name)
+                                            .font(.system(size: 17, weight: .semibold))
+                                            .foregroundColor(.primary)
+                                        
+                                        // New indicator
+                                        if let lastNotification = notificationService.followedZinesMetadata[zine.id]?.lastNotificationAt,
+                                           isRecent(lastNotification) {
+                                            Text("New")
+                                                .font(.system(size: 12, weight: .bold))
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
+                                                .background(Color.blue)
+                                                .cornerRadius(12)
+                                        }
+                                    }
                                     
                                     Text(zine.bio)
                                         .font(.system(size: 15))
@@ -87,7 +97,6 @@ struct FollowingView: View {
             }
         }
         .onAppear {
-            // Force a refresh of zines when view appears
             Task {
                 await zineService.fetchZines()
             }

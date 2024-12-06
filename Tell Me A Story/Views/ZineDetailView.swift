@@ -140,30 +140,6 @@ struct ZineDetailView: View {
                             }
                             .padding(.top, 8)
                             
-                            // Add Debug Information Section here
-                                                        VStack(spacing: 8) {
-                                                            if let authDebug = authService.debugMessage {
-                                                                Text("Auth: \(authDebug)")
-                                                                    .font(.caption)
-                                                                    .foregroundColor(.gray)
-                                                            }
-                                                            
-                                                            if let notifDebug = notificationService.debugMessage {
-                                                                Text("Notifications: \(notifDebug)")
-                                                                    .font(.caption)
-                                                                    .foregroundColor(.gray)
-                                                            }
-                                                            
-                                                            if let error = notificationService.error {
-                                                                Text("Error: \(error.localizedDescription)")
-                                                                    .font(.caption)
-                                                                    .foregroundColor(.red)
-                                                            }
-                                                        }
-                                                        .padding()
-                                                        .background(Color.gray.opacity(0.1))
-                                                        .cornerRadius(8)
-                                                        .padding(.horizontal)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -285,6 +261,18 @@ struct ZineDetailView: View {
                                             zineId: zine.id,
                                             zineName: zine.name
                                         ))
+                                        
+                                        // Add this new code to update last viewed
+                                        if notificationService.isFollowingZine(zine.id) {
+                                            Task {
+                                                do {
+                                                    try await notificationService.updateLastViewed(for: zine)
+                                                } catch {
+                                                    // Handle error if needed
+                                                    print("Failed to update last viewed: \(error)")
+                                                }
+                                            }
+                                        }
                                     }
                                     .alert("Sign in Required", isPresented: $isShowingAuthAlert) {
                                         Button("Sign In") {

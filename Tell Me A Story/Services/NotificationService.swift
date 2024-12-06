@@ -3,6 +3,14 @@ import FirebaseFirestore
 import FirebaseAuth
 import SwiftUI
 
+struct FollowedZineMetadata: Codable {
+    let zineName: String
+    let followedAt: Date
+    let lastViewedAt: Date?
+    let lastNotificationAt: Date?
+    var hasUnreadIssues: Bool
+}
+
 enum NotificationError: LocalizedError {
     case notificationsDenied
     case notificationsNotDetermined
@@ -32,9 +40,11 @@ enum NotificationError: LocalizedError {
 class NotificationService: NSObject, ObservableObject {
     static let shared = NotificationService()
     
+    @Published var notificationStatus: String = "Not initialized"
     @Published var followedZines: Set<String> = []
+    @Published var followedZinesMetadata: [String: FollowedZineMetadata] = [:]  // Add this
+    @Published var unreadCount: Int = 0  // Add this
     @Published var error: NotificationError?
-    @Published var debugMessage: String?  // For debugging
     
     // Make these optional and lazy initialize them
     private var messaging: Messaging?
@@ -43,7 +53,8 @@ class NotificationService: NSObject, ObservableObject {
     
     private override init() {
         super.init()
-        debugMessage = "NotificationService initialized"
+        UNUserNotificationCenter.current().delegate = self
+        checkNotificationStatus() // Add this line
     }
     
     // Add a setup method that ensures everything is initialized
@@ -51,21 +62,26 @@ class NotificationService: NSObject, ObservableObject {
         if messaging == nil {
             messaging = Messaging.messaging()
             messaging?.delegate = self  // Add this line here
-            debugMessage = "Messaging initialized"
         }
         if db == nil {
             db = Firestore.firestore()
-            debugMessage = "Firestore initialized"
         }
         if analytics == nil {
             analytics = AnalyticsService.shared
-            debugMessage = "Analytics initialized"
+        }
+    }
+    
+    private func checkNotificationStatus() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            DispatchQueue.main.async {
+                self.notificationStatus = "Authorization: \(settings.authorizationStatus.rawValue)\nAlert: \(settings.alertSetting.rawValue)\nSound: \(settings.soundSetting.rawValue)\nBadge: \(settings.badgeSetting.rawValue)"
+            }
         }
     }
     
     func requestNotificationPermissions() async throws {
         ensureInitialized()
-        debugMessage = "Requesting notification permissions"
+        
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         
         do {
@@ -74,18 +90,12 @@ class NotificationService: NSObject, ObservableObject {
             if settings {
                 await MainActor.run {
                     UIApplication.shared.registerForRemoteNotifications()
-                    debugMessage = "Notification permissions granted"
                 }
                 
-                // Wait for FCM token
-                _ = try await Messaging.messaging().token()
-                debugMessage = "FCM token retrieved"
             } else {
-                debugMessage = "Notification permissions denied"
                 throw NotificationError.notificationsDenied
             }
         } catch {
-            debugMessage = "Notification permission error: \(error.localizedDescription)"
             throw NotificationError.notificationsDenied
         }
     }
@@ -93,33 +103,31 @@ class NotificationService: NSObject, ObservableObject {
     func followZine(_ zine: Zine) async throws {
         ensureInitialized()
         guard let userId = Auth.auth().currentUser?.uid else {
-            debugMessage = "No authenticated user"
             throw NotificationError.firebaseError("No authenticated user")
         }
         
         guard let messaging = messaging, let db = db else {
-            debugMessage = "Services not initialized"
             throw NotificationError.initializationError
         }
         
         do {
-            debugMessage = "Attempting to subscribe to topic: zine_\(zine.id)"
             try await messaging.subscribe(toTopic: "zine_\(zine.id)")
             
-            debugMessage = "Subscription successful, updating Firestore"
             try await db.collection("users").document(userId)
                 .collection("followed_zines").document(zine.id).setData([
                     "zineName": zine.name,
-                    "followedAt": FieldValue.serverTimestamp()
+                    "zineId": zine.id,  // Add this line
+                    "followedAt": FieldValue.serverTimestamp(),
+                    "lastNotificationAt": NSNull(),
+                    "hasUnreadIssues": false
                 ])
             
             await MainActor.run {
                 self.followedZines.insert(zine.id)
-                self.debugMessage = "Follow operation completed successfully"
+                return
             }
             
         } catch {
-            debugMessage = "Error during follow operation: \(error.localizedDescription)"
             throw NotificationError.firebaseError(error.localizedDescription)
         }
     }
@@ -127,30 +135,25 @@ class NotificationService: NSObject, ObservableObject {
     func unfollowZine(_ zine: Zine) async throws {
         ensureInitialized()
         guard let userId = Auth.auth().currentUser?.uid else {
-            debugMessage = "No authenticated user"
             throw NotificationError.firebaseError("No authenticated user")
         }
         
         guard let messaging = messaging, let db = db else {
-            debugMessage = "Services not initialized"
             throw NotificationError.initializationError
         }
         
         do {
-            debugMessage = "Attempting to unsubscribe from topic: zine_\(zine.id)"
             try await messaging.unsubscribe(fromTopic: "zine_\(zine.id)")
             
-            debugMessage = "Unsubscribe successful, updating Firestore"
             try await db.collection("users").document(userId)
                 .collection("followed_zines").document(zine.id).delete()
             
             await MainActor.run {
                 self.followedZines.remove(zine.id)
-                self.debugMessage = "Unfollow operation completed successfully"
+                return
             }
             
         } catch {
-            debugMessage = "Error during unfollow operation: \(error.localizedDescription)"
             throw NotificationError.firebaseError(error.localizedDescription)
         }
     }
@@ -160,24 +163,34 @@ class NotificationService: NSObject, ObservableObject {
     }
     
     func cleanup() {
-            debugMessage = "Cleaning up notification service"
             DispatchQueue.main.async {
                 self.followedZines.removeAll()
             }
         }
     
+    func updateLastViewed(for zine: Zine) async throws {
+        guard let userId = Auth.auth().currentUser?.uid,
+              let db = db else {
+            throw NotificationError.firebaseError("No authenticated user")
+        }
+        
+        try await db.collection("users").document(userId)
+            .collection("followed_zines").document(zine.id)
+            .setData([
+                "lastViewedAt": FieldValue.serverTimestamp(),
+                "hasUnreadIssues": false
+            ], merge: true)
+    }
+    
     func setupForUser() {
         ensureInitialized()
-        debugMessage = "Setting up for user"
         
         // Request permissions right away
         Task {
             do {
                 try await requestNotificationPermissions()
-                debugMessage = "Permissions requested, loading followed zines"
                 loadFollowedZines()  // Make sure this runs even if permissions fail
             } catch {
-                debugMessage = "Failed to request permissions: \(error.localizedDescription)"
                 loadFollowedZines()  // Still try to load followed zines even if permissions fail
             }
         }
@@ -186,43 +199,91 @@ class NotificationService: NSObject, ObservableObject {
     private func loadFollowedZines() {
         guard let userId = Auth.auth().currentUser?.uid,
               let db = db else {
-            debugMessage = "Cannot load zines - missing user or database"
             return
         }
-        
-        debugMessage = "Setting up Firestore listener for user: \(userId)"
         
         db.collection("users").document(userId)
             .collection("followed_zines")
             .addSnapshotListener { [weak self] snapshot, error in
-                if let error = error {
-                    self?.debugMessage = "Snapshot error: \(error.localizedDescription)"
+                if error != nil {
                     return
                 }
                 
                 guard let documents = snapshot?.documents else {
-                    self?.debugMessage = "No documents in snapshot"
                     return
                 }
                 
-                let zineIds = Set(documents.map { $0.documentID })
+                var newMetadata: [String: FollowedZineMetadata] = [:]
+                var unreadCount = 0
+                
+                for document in documents {
+                    let zineId = document.documentID
+                    let data = document.data()
+                    
+                    let metadata = FollowedZineMetadata(
+                        zineName: data["zineName"] as? String ?? "",
+                        followedAt: (data["followedAt"] as? Timestamp)?.dateValue() ?? Date(),
+                        lastViewedAt: (data["lastViewedAt"] as? Timestamp)?.dateValue(),
+                        lastNotificationAt: (data["lastNotificationAt"] as? Timestamp)?.dateValue(),
+                        hasUnreadIssues: data["hasUnreadIssues"] as? Bool ?? false
+                    )
+                    
+                    newMetadata[zineId] = metadata
+                    if metadata.hasUnreadIssues {
+                        unreadCount += 1
+                    }
+                }
                 
                 DispatchQueue.main.async {
-                    self?.followedZines = zineIds
-                    self?.debugMessage = "Updated followed zines from Firestore: \(zineIds.count) items - IDs: \(zineIds.joined(separator: ", "))"
+                    self?.followedZinesMetadata = newMetadata
+                    self?.followedZines = Set(newMetadata.keys)
+                    self?.unreadCount = unreadCount
                 }
             }
+    }
+    
+    func verifyNotificationSetup() async throws {
+        
+        do {
+            _ = await UNUserNotificationCenter.current().notificationSettings()
+            
+            if try await messaging?.token() != nil {
+                if let firstZine = followedZines.first {
+                    try await messaging?.subscribe(toTopic: "zine_\(firstZine)")
+                }
+            }
+        } catch {
+            throw NotificationError.initializationError  // Or handle the error appropriately
+        }
     }
 }
 
 // Add this extension at the bottom of the file
 extension NotificationService: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        debugMessage = "Received new FCM token"
-        
         // Optional: Store the token in UserDefaults or send to your server
         if let token = fcmToken {
             UserDefaults.standard.set(token, forKey: "FCMToken")
         }
     }
 }
+
+extension NotificationService: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
+    }
+    
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        completionHandler()
+    }
+}
+
+

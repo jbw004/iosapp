@@ -15,10 +15,13 @@ struct ContentView: View {
         NavigationStack(path: $navigationPath) {
             ZStack(alignment: .bottom) {
                 VStack(spacing: 0) {
-                    // Custom Header
                     if showHeader {
-                        CustomNavigationView(selectedTab: $selectedTab, isDetailView: false)
-                            .transition(.move(edge: .top))
+                        CustomNavigationView(
+                            selectedTab: $selectedTab,
+                            isDetailView: false,
+                            unreadCount: NotificationService.shared.unreadCount
+                        )
+                        .transition(.move(edge: .top))
                     }
                     
                     // Content
