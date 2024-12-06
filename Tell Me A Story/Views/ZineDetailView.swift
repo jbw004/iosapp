@@ -42,6 +42,7 @@ struct ZineDetailView: View {
     @EnvironmentObject var authService: AuthenticationService
     @EnvironmentObject var notificationService: NotificationService
     @EnvironmentObject var bookmarkService: BookmarkService
+    @EnvironmentObject var readService: ReadService
     @State private var isShowingAuthAlert = false
     @State private var isLoading = false
     @State private var showHeader = true
@@ -236,24 +237,48 @@ struct ZineDetailView: View {
                                     
                                     Spacer()
                                     
-                                    Button {
-                                        if !authService.isAuthenticated {
-                                            isShowingAuthAlert = true
-                                            return
-                                        }
-                                        
-                                        Task {
-                                            do {
-                                                try await bookmarkService.toggleBookmark(for: issue, in: zine)
-                                            } catch {
-                                                if let bookmarkError = error as? BookmarkService.BookmarkError {
-                                                    bookmarkService.error = bookmarkError
+                                    HStack(spacing: 12) {
+                                        // Read status button
+                                        Button {
+                                            if !authService.isAuthenticated {
+                                                isShowingAuthAlert = true
+                                                return
+                                            }
+                                            
+                                            Task {
+                                                do {
+                                                    try await readService.toggleReadStatus(for: issue, in: zine)
+                                                } catch {
+                                                    if let readError = error as? ReadService.ReadError {
+                                                        readService.error = readError
+                                                    }
                                                 }
                                             }
+                                        } label: {
+                                            Image(systemName: readService.isIssueRead(issue.id) ? "checkmark.circle.fill" : "checkmark.circle")
+                                                .foregroundColor(.blue)
                                         }
-                                    } label: {
-                                        Image(systemName: bookmarkService.isIssueBookmarked(issue.id) ? "bookmark.fill" : "bookmark")
-                                            .foregroundColor(.blue)
+                                        
+                                        // Existing bookmark button
+                                        Button {
+                                            if !authService.isAuthenticated {
+                                                isShowingAuthAlert = true
+                                                return
+                                            }
+                                            
+                                            Task {
+                                                do {
+                                                    try await bookmarkService.toggleBookmark(for: issue, in: zine)
+                                                } catch {
+                                                    if let bookmarkError = error as? BookmarkService.BookmarkError {
+                                                        bookmarkService.error = bookmarkError
+                                                    }
+                                                }
+                                            }
+                                        } label: {
+                                            Image(systemName: bookmarkService.isIssueBookmarked(issue.id) ? "bookmark.fill" : "bookmark")
+                                                .foregroundColor(.blue)
+                                        }
                                     }
                                 }
                             }
@@ -294,6 +319,17 @@ struct ZineDetailView: View {
                                             }
                                         }
                                         
+                                        // Read status loading
+                                        Task {
+                                            do {
+                                                try await readService.loadReadIssues()
+                                            } catch {
+                                                if let readError = error as? ReadService.ReadError {
+                                                    readService.error = readError
+                                                }
+                                            }
+                                        }
+                                        
                                         // Your existing last viewed update code
                                         if notificationService.isFollowingZine(zine.id) {
                                             Task {
@@ -307,12 +343,11 @@ struct ZineDetailView: View {
                                     }
                                     .alert("Sign in Required", isPresented: $isShowingAuthAlert) {
                                         Button("Sign In") {
-                                            // Use your existing auth sheet
                                             showingAuthSheet = true
                                         }
                                         Button("Cancel", role: .cancel) { }
                                     } message: {
-                                        Text("Please sign in to follow zines and receive notifications")
+                                        Text("Please sign in to follow zines, bookmark issues, and track your reading progress")
                                     }
                                     .sheet(isPresented: $showingAuthSheet) {
                                         NavigationView {

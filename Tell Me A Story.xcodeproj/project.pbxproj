@@ -21,6 +21,7 @@
 		0E6CC8FD2CFFC41700BBB7C8 /* FollowingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6CC8FC2CFFC41600BBB7C8 /* FollowingView.swift */; };
 		0E6CC8FF2D02CA5800BBB7C8 /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6CC8FE2D02CA5800BBB7C8 /* CustomTabBar.swift */; };
 		0E6CC9012D02E81300BBB7C8 /* BookmarkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6CC9002D02E81300BBB7C8 /* BookmarkService.swift */; };
+		0E6CC9052D03B6CA00BBB7C8 /* ReadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6CC9042D03B6CA00BBB7C8 /* ReadService.swift */; };
 		0E83C34A2CFD976D005C177D /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E83C3492CFD976D005C177D /* AnalyticsService.swift */; };
 		0EA58C802CF4050F00063653 /* Tell_Me_A_StoryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA58C7F2CF4050F00063653 /* Tell_Me_A_StoryApp.swift */; };
 		0EA58C822CF4050F00063653 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA58C812CF4050F00063653 /* ContentView.swift */; };
@@ -62,6 +63,7 @@
 		0E6CC8FC2CFFC41600BBB7C8 /* FollowingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingView.swift; sourceTree = "<group>"; };
 		0E6CC8FE2D02CA5800BBB7C8 /* CustomTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
 		0E6CC9002D02E81300BBB7C8 /* BookmarkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkService.swift; sourceTree = "<group>"; };
+		0E6CC9042D03B6CA00BBB7C8 /* ReadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadService.swift; sourceTree = "<group>"; };
 		0E83C3492CFD976D005C177D /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		0EA58C7C2CF4050F00063653 /* Tell Me A Story.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tell Me A Story.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0EA58C7F2CF4050F00063653 /* Tell_Me_A_StoryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tell_Me_A_StoryApp.swift; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 				0E83C3492CFD976D005C177D /* AnalyticsService.swift */,
 				0E6CC8FA2CFF8C1B00BBB7C8 /* NotificationService.swift */,
 				0E6CC9002D02E81300BBB7C8 /* BookmarkService.swift */,
+				0E6CC9042D03B6CA00BBB7C8 /* ReadService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -339,6 +342,7 @@
 				0EF5EDF12CF83422006E1D10 /* SubmissionModels.swift in Sources */,
 				0E6CC8FB2CFF8C1B00BBB7C8 /* NotificationService.swift in Sources */,
 				0EF5EDD82CF6F1B2006E1D10 /* DiscussionView.swift in Sources */,
+				0E6CC9052D03B6CA00BBB7C8 /* ReadService.swift in Sources */,
 				0E69F7582CF4093E00252A27 /* ZineService.swift in Sources */,
 				0EF5EDE32CF82D19006E1D10 /* ZinePicker.swift in Sources */,
 				0EF5EDDF2CF82BBB006E1D10 /* SubmissionCoordinator.swift in Sources */,

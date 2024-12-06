@@ -78,6 +78,7 @@ struct ContentView: View {
         .environmentObject(zineService)
         .environmentObject(NotificationService.shared)
         .environmentObject(BookmarkService.shared)
+        .environmentObject(ReadService.shared)
         .onChange(of: deepLinkZineId) { oldValue, newValue in
             if let zineId = newValue {
                 Task {

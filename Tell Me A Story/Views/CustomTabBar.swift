@@ -216,18 +216,127 @@ struct BookmarksView: View {
 }
 
 struct HistoryView: View {
+    @EnvironmentObject var readService: ReadService
+    @EnvironmentObject var authService: AuthenticationService
+    @State private var groupedReadIssues: [String: [ReadIssue]] = [:]
+    @State private var isLoading = false
+    @State private var showingAuthSheet = false
+    
     var body: some View {
-        VStack {
-            Image(systemName: "clock")
-                .font(.largeTitle)
-                .padding()
-            Text("Read History Coming Soon")
-                .font(.headline)
-            Text("Track your reading journey")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+        Group {
+            if !authService.isAuthenticated {
+                VStack(spacing: 16) {
+                    Image(systemName: "clock")
+                        .font(.system(size: 48))
+                        .foregroundColor(.gray)
+                    
+                    Text("Sign in to see your reading history")
+                        .font(.headline)
+                    
+                    Button("Sign In") {
+                        showingAuthSheet = true
+                    }
+                    .buttonStyle(.bordered)
+                }
+            } else if isLoading {
+                ProgressView()
+            } else if groupedReadIssues.isEmpty {
+                VStack(spacing: 16) {
+                    Image(systemName: "clock")
+                        .font(.system(size: 48))
+                        .foregroundColor(.gray)
+                    
+                    Text("No read issues yet")
+                        .font(.headline)
+                    
+                    Text("Mark issues as read to track your progress")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            } else {
+                List {
+                    ForEach(Array(groupedReadIssues.keys.sorted()), id: \.self) { zineName in
+                        Section(header: Text(zineName)) {
+                            ForEach(groupedReadIssues[zineName] ?? []) { readIssue in
+                                Button {
+                                    if let url = URL(string: readIssue.linkUrl) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                } label: {
+                                    HStack(spacing: 16) {
+                                        CachedAsyncImage(url: readIssue.coverImageUrl) { image in
+                                            image
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                        } placeholder: {
+                                            Rectangle()
+                                                .foregroundColor(.gray.opacity(0.2))
+                                        }
+                                        .frame(width: 60, height: 60)
+                                        .cornerRadius(8)
+                                        
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(readIssue.issueTitle)
+                                                .font(.system(size: 15, weight: .semibold))
+                                            Text(readIssue.publishedDate)
+                                                .font(.system(size: 13))
+                                                .foregroundColor(.gray)
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        Button {
+                                            Task {
+                                                // Create temporary Issue and Zine for the toggleReadStatus call
+                                                let issue = Zine.Issue(
+                                                    id: readIssue.issueId,
+                                                    title: readIssue.issueTitle,
+                                                    coverImageUrl: readIssue.coverImageUrl,
+                                                    linkUrl: readIssue.linkUrl,
+                                                    publishedDate: readIssue.publishedDate
+                                                )
+                                                let zine = Zine(
+                                                    id: readIssue.zineId,
+                                                    name: readIssue.zineName,
+                                                    bio: "",
+                                                    coverImageUrl: "",
+                                                    instagramUrl: "",
+                                                    issues: []
+                                                )
+                                                try await readService.toggleReadStatus(for: issue, in: zine)
+                                                await loadReadIssues()
+                                            }
+                                        } label: {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundColor(.blue)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .listStyle(.insetGrouped)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
+        .sheet(isPresented: $showingAuthSheet) {
+            NavigationView {
+                AuthenticationView()
+            }
+        }
+        .task {
+            await loadReadIssues()
+        }
+    }
+    
+    private func loadReadIssues() async {
+        isLoading = true
+        do {
+            groupedReadIssues = try await readService.fetchGroupedReadIssues()
+        } catch {
+            // Handle error if needed
+            print("Error loading read issues: \(error)")
+        }
+        isLoading = false
     }
 }
