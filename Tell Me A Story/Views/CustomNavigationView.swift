@@ -16,13 +16,6 @@ struct CustomNavigationView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Safe area spacer
-            Color(.systemBackground)
-                .opacity(0.60)
-                .background(.ultraThinMaterial)
-                .ignoresSafeArea(edges: .top)
-                .frame(height: 0)
-            
             // Top row with logo/back button and sign in button
             ZStack {
                 // Left-aligned back button (if detail view)
@@ -55,53 +48,54 @@ struct CustomNavigationView: View {
             }
             .frame(height: 44)  // Fixed height for top row
             .padding(.horizontal)
+            .padding(.top, 16)
             
             // Tab buttons
             if !isDetailView {
-                            HStack(spacing: 24) {
-                                ForEach(["Zines", "Following"].indices, id: \.self) { index in
-                                    Button(action: {
-                                        withAnimation {
-                                            selectedTab = index
-                                        }
-                                    }) {
-                                        VStack(spacing: 8) {
-                                            HStack(spacing: 4) {
-                                                Text(["Zines", "Following"][index])
-                                                    .fontWeight(selectedTab == index ? .semibold : .regular)
-                                                    .foregroundColor(selectedTab == index ? .primary : .gray)
-                                                
-                                                // Show unread count for Following tab
-                                                if index == 1 && unreadCount > 0 {
-                                                    Text("\(unreadCount)")
-                                                        .font(.caption)
-                                                        .fontWeight(.bold)
-                                                        .foregroundColor(.white)
-                                                        .padding(.horizontal, 6)
-                                                        .padding(.vertical, 2)
-                                                        .background(Color.red)
-                                                        .clipShape(Capsule())
-                                                }
-                                            }
-                                            
-                                            Rectangle()
-                                                .fill(selectedTab == index ? Color.blue : Color.clear)
-                                                .frame(height: 2)
-                                        }
+                HStack(spacing: 24) {
+                    ForEach(["Zines", "Following"].indices, id: \.self) { index in
+                        Button(action: {
+                            withAnimation {
+                                selectedTab = index
+                            }
+                        }) {
+                            VStack(spacing: 8) {
+                                HStack(spacing: 4) {
+                                    Text(["Zines", "Following"][index])
+                                        .fontWeight(selectedTab == index ? .semibold : .regular)
+                                        .foregroundColor(selectedTab == index ? .primary : .gray)
+                                    
+                                    // Show unread count for Following tab
+                                    if index == 1 && unreadCount > 0 {
+                                        Text("\(unreadCount)")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(Color.red)
+                                            .clipShape(Capsule())
                                     }
                                 }
                                 
-                                Spacer()
+                                Rectangle()
+                                    .fill(selectedTab == index ? Color.blue : Color.clear)
+                                    .frame(height: 2)
                             }
-                            .frame(height: 40)
-                            .padding(.horizontal)
                         }
                     }
-                    .frame(height: isDetailView ? 44 : 84)
-                    .background {
-                        Color(.systemBackground)
-                            .opacity(0.60)
-                            .background(.ultraThinMaterial)
-                    }
+                    
+                    Spacer()
                 }
+                .frame(height: 40)
+                .padding(.horizontal)
             }
+        }
+        .background {
+                    Color(.systemBackground)
+                        .opacity(0.85)
+                        .background(.ultraThinMaterial)
+                        .ignoresSafeArea(edges: .top)
+        }
+    }
+}

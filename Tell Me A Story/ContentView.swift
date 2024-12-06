@@ -3,7 +3,8 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var authService = AuthenticationService()
     @StateObject private var zineService = ZineService()
-    @State private var selectedTab = 0
+    @State private var selectedTab = 0 // Existing tab state for Zines/Following
+    @State private var selectedFooterTab: TabItem = .home
     @State private var showHeader = true
     @State private var lastScrollOffset: CGFloat = 0
     @State private var showingSubmissionSheet = false
@@ -24,49 +25,47 @@ struct ContentView: View {
                         .transition(.move(edge: .top))
                     }
                     
-                    // Content
-                    // Content
-                    ZStack {
-                        if selectedTab == 0 {
-                            ScrollView {
-                                VStack {
-                                    ZineListView()
-                                }
-                                .onScrollOffsetChange { offset in
-                                    let scrollingDown = offset < lastScrollOffset
-                                    if abs(offset - lastScrollOffset) > 30 {
-                                        withAnimation {
-                                            showHeader = !scrollingDown
+                    // Main Content Area
+                    Group {
+                        switch selectedFooterTab {
+                        case .home:
+                            // Your existing content here (the ZStack with tabs)
+                            ZStack {
+                                if selectedTab == 0 {
+                                    ScrollView {
+                                        VStack {
+                                            ZineListView()
                                         }
-                                        lastScrollOffset = offset
+                                        .onScrollOffsetChange { offset in
+                                            let scrollingDown = offset < lastScrollOffset
+                                            if abs(offset - lastScrollOffset) > 30 {
+                                                withAnimation {
+                                                    showHeader = !scrollingDown
+                                                }
+                                                lastScrollOffset = offset
+                                            }
+                                        }
                                     }
+                                    .coordinateSpace(name: "scroll")
+                                } else {
+                                    FollowingView()
                                 }
                             }
-                            .coordinateSpace(name: "scroll")
-                        } else {
-                            FollowingView()
+                        case .bookmarks:
+                            BookmarksView()
+                        case .submit:
+                            EmptyView() // Handle in CustomTabBar
+                        case .history:
+                            HistoryView()
+                        case .discussion:
+                            DiscussionView()
                         }
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 
-                // Footer with + button
-                // Footer with + button section in ContentView
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        showingSubmissionSheet = true
-                    }) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(width: 54, height: 54)
-                            .background(Color.blue)
-                            .clipShape(Circle())
-                            .shadow(color: Color.black.opacity(0.15), radius: 3, x: 0, y: 2)
-                    }
-                }
-                .padding(.trailing, 20)
-                .padding(.bottom, 20)
+                CustomTabBar(selectedTab: $selectedFooterTab,
+                            showingSubmissionSheet: $showingSubmissionSheet)
             }
             .navigationDestination(for: Zine.self) { zine in
                 ZineDetailView(zine: zine)
