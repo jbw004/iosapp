@@ -7,38 +7,49 @@ struct CustomNavigationView: View {
     @Environment(\.presentationMode) var presentationMode
     let isDetailView: Bool
     let unreadCount: Int
+    let simplifiedHeader: Bool
+    let headerTitle: String?
     
-    init(selectedTab: Binding<Int>, isDetailView: Bool = false, unreadCount: Int = 0) {
+    init(selectedTab: Binding<Int>, isDetailView: Bool = false, unreadCount: Int = 0,
+         simplifiedHeader: Bool = false, headerTitle: String? = nil) {
         self._selectedTab = selectedTab
         self.isDetailView = isDetailView
         self.unreadCount = unreadCount
+        self.simplifiedHeader = simplifiedHeader
+        self.headerTitle = headerTitle
     }
     
     var body: some View {
         VStack(spacing: 0) {
             // Top row with logo/back button and sign in button
             ZStack {
-                // Left-aligned back button (if detail view)
-                HStack {
-                    if isDetailView {
-                        Button(action: {
-                            presentationMode.wrappedValue.dismiss()
-                        }) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "chevron.left")
-                                Text("Zines")
+                if simplifiedHeader {
+                    // Centered title for simplified header
+                    Text(headerTitle ?? "")
+                        .font(.system(size: 17, weight: .semibold))
+                } else {
+                    // Left-aligned back button (if detail view)
+                    HStack {
+                        if isDetailView {
+                            Button(action: {
+                                presentationMode.wrappedValue.dismiss()
+                            }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "chevron.left")
+                                    Text("Zines")
+                                }
+                                .foregroundColor(.primary)
                             }
-                            .foregroundColor(.primary)
                         }
+                        Spacer()
                     }
-                    Spacer()
+                    
+                    // Centered logo
+                    Image("app-logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 30)
                 }
-                
-                // Centered logo
-                Image("app-logo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 30)
                 
                 // Right-aligned auth button
                 HStack {
@@ -50,8 +61,8 @@ struct CustomNavigationView: View {
             .padding(.horizontal)
             .padding(.top, 16)
             
-            // Tab buttons
-            if !isDetailView {
+            // Tab buttons only shown in non-simplified, non-detail view
+            if !isDetailView && !simplifiedHeader {
                 HStack(spacing: 24) {
                     ForEach(["Zines", "Following"].indices, id: \.self) { index in
                         Button(action: {
@@ -92,10 +103,10 @@ struct CustomNavigationView: View {
             }
         }
         .background {
-                    Color(.systemBackground)
-                        .opacity(0.85)
-                        .background(.ultraThinMaterial)
-                        .ignoresSafeArea(edges: .top)
+            Color(.systemBackground)
+                .opacity(0.85)
+                .background(.ultraThinMaterial)
+                .ignoresSafeArea(edges: .top)
         }
     }
 }

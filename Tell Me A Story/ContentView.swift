@@ -17,11 +17,36 @@ struct ContentView: View {
             ZStack(alignment: .bottom) {
                 VStack(spacing: 0) {
                     if showHeader {
-                        CustomNavigationView(
-                            selectedTab: $selectedTab,
-                            isDetailView: false,
-                            unreadCount: NotificationService.shared.unreadCount
-                        )
+                        Group {
+                            switch selectedFooterTab {
+                            case .home:
+                                CustomNavigationView(
+                                    selectedTab: $selectedTab,
+                                    isDetailView: false,
+                                    unreadCount: NotificationService.shared.unreadCount
+                                )
+                            case .bookmarks:
+                                CustomNavigationView(
+                                    selectedTab: $selectedTab,
+                                    simplifiedHeader: true,
+                                    headerTitle: "Bookmarks"
+                                )
+                            case .history:
+                                CustomNavigationView(
+                                    selectedTab: $selectedTab,
+                                    simplifiedHeader: true,
+                                    headerTitle: "Read History"
+                                )
+                            case .discussion:
+                                CustomNavigationView(
+                                    selectedTab: $selectedTab,
+                                    simplifiedHeader: true,
+                                    headerTitle: "Discussion"
+                                )
+                            case .submit:
+                                EmptyView()
+                            }
+                        }
                         .transition(.move(edge: .top))
                     }
                     
@@ -29,7 +54,6 @@ struct ContentView: View {
                     Group {
                         switch selectedFooterTab {
                         case .home:
-                            // Your existing content here (the ZStack with tabs)
                             ZStack {
                                 if selectedTab == 0 {
                                     ScrollView {
@@ -54,7 +78,7 @@ struct ContentView: View {
                         case .bookmarks:
                             BookmarksView()
                         case .submit:
-                            EmptyView() // Handle in CustomTabBar
+                            EmptyView()
                         case .history:
                             HistoryView()
                         case .discussion:
@@ -65,7 +89,7 @@ struct ContentView: View {
                 }
                 
                 CustomTabBar(selectedTab: $selectedFooterTab,
-                            showingSubmissionSheet: $showingSubmissionSheet)
+                           showingSubmissionSheet: $showingSubmissionSheet)
             }
             .navigationDestination(for: Zine.self) { zine in
                 ZineDetailView(zine: zine)

@@ -281,6 +281,7 @@ struct ZineDetailView: View {
                                         }
                                     }
                                 }
+                                .padding(.horizontal)  // Add this padding to match header
                             }
                                                         .buttonStyle(PlainButtonStyle())
                                                         
