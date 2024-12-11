@@ -35,7 +35,7 @@ struct ContentView: View {
                                 CustomNavigationView(
                                     selectedTab: $selectedTab,
                                     simplifiedHeader: true,
-                                    headerTitle: "Read History"
+                                    headerTitle: "Reading Passport"
                                 )
                             case .discussion:
                                 CustomNavigationView(
@@ -80,7 +80,7 @@ struct ContentView: View {
                         case .submit:
                             EmptyView()
                         case .history:
-                            HistoryView()
+                            PassportView()
                         case .discussion:
                             DiscussionView()
                         }
