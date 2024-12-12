@@ -11,8 +11,11 @@ struct ContentView: View {
     @Binding var deepLinkZineId: String?
     @State private var selectedZine: Zine?
     @State private var navigationPath = NavigationPath()
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+    @State private var isShowingOnboarding = false
     
     var body: some View {
+        ZStack {
         NavigationStack(path: $navigationPath) {
             ZStack(alignment: .bottom) {
                 VStack(spacing: 0) {
@@ -32,11 +35,7 @@ struct ContentView: View {
                                     headerTitle: "Bookmarks"
                                 )
                             case .history:
-                                CustomNavigationView(
-                                    selectedTab: $selectedTab,
-                                    simplifiedHeader: true,
-                                    headerTitle: "Reading Passport"
-                                )
+                                PassportView(selectedFooterTab: $selectedFooterTab)
                             case .discussion:
                                 CustomNavigationView(
                                     selectedTab: $selectedTab,
@@ -80,7 +79,7 @@ struct ContentView: View {
                         case .submit:
                             EmptyView()
                         case .history:
-                            PassportView()
+                            EmptyView()
                         case .discussion:
                             DiscussionView()
                         }
@@ -88,13 +87,32 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 
-                CustomTabBar(selectedTab: $selectedFooterTab,
-                           showingSubmissionSheet: $showingSubmissionSheet)
+                if selectedFooterTab != .history {
+                    CustomTabBar(selectedTab: $selectedFooterTab,
+                               showingSubmissionSheet: $showingSubmissionSheet)
+                }
             }
             .navigationDestination(for: Zine.self) { zine in
                 ZineDetailView(zine: zine)
             }
         }
+            
+            // In ContentView.swift, modify the fullScreenCover binding to:
+            .fullScreenCover(isPresented: Binding(
+                get: { !hasSeenOnboarding || isShowingOnboarding },  // Changed the logic here
+                set: { newValue in
+                    hasSeenOnboarding = !newValue
+                    isShowingOnboarding = newValue
+                }
+            )) {
+                OnboardingView(
+                    isShowingOnboarding: $isShowingOnboarding,
+                    selectedFooterTab: $selectedFooterTab
+                )
+                .environmentObject(authService)
+            }
+                }
+        
         .sheet(isPresented: $showingSubmissionSheet) {
             SubmissionTypeSelectionView()
         }

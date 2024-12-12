@@ -96,6 +96,7 @@ struct FollowingView: View {
                 }
             }
         }
+        .padding(.bottom, 100)    // Add here
         .onAppear {
             Task {
                 await zineService.fetchZines()

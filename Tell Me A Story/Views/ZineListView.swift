@@ -62,6 +62,7 @@ struct ZineListView: View {
             }
         }
         .padding()
+        .padding(.bottom, 100)    // Add here
         .onAppear {
             if zineService.zines.isEmpty {
                 Task {

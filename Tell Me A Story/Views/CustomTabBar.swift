@@ -13,7 +13,7 @@ enum TabItem: Int, Hashable {
         case .home: return "Home"
         case .bookmarks: return "Bookmarks"
         case .submit: return "Submit"
-        case .history: return "History"
+        case .history: return "Wrapped"
         case .discussion: return "Discussion"
         }
     }
@@ -23,7 +23,7 @@ enum TabItem: Int, Hashable {
         case .home: return "house"
         case .bookmarks: return "bookmark"
         case .submit: return "plus"
-        case .history: return "clock"
+        case .history: return "gift"
         case .discussion: return "bubble.left.and.bubble.right"
         }
     }
@@ -191,6 +191,7 @@ struct BookmarksView: View {
                     }
                 }
                 .listStyle(.insetGrouped)
+                .padding(.bottom, 100)    // Add here
             }
         }
         .sheet(isPresented: $showingAuthSheet) {
