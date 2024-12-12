@@ -26,8 +26,9 @@ class ReadService: ObservableObject {
         }
     }
     
-    func isIssueRead(_ issueId: String) -> Bool {
-        readIssueIds.contains(issueId)
+    func isIssueRead(_ issueId: String, in zineId: String) -> Bool {
+        let uniqueId = "\(zineId)_\(issueId)"
+        return readIssueIds.contains(uniqueId)
     }
     
     func toggleReadStatus(for issue: Zine.Issue, in zine: Zine) async throws {
@@ -35,15 +36,16 @@ class ReadService: ObservableObject {
             throw ReadError.notAuthenticated
         }
         
+        let uniqueId = "\(zine.id)_\(issue.id)"
         let userReadRef = db.collection("users").document(userId)
             .collection("read_issues")
         
         do {
-            if isIssueRead(issue.id) {
-                try await userReadRef.document(issue.id).delete()
+            if isIssueRead(issue.id, in: zine.id) {
+                try await userReadRef.document(uniqueId).delete()
                 
                 await MainActor.run {
-                    self.readIssueIds.remove(issue.id)
+                    self.readIssueIds.remove(uniqueId)
                     return
                 }
             } else {
@@ -58,10 +60,10 @@ class ReadService: ObservableObject {
                     "publishedDate": issue.publishedDate
                 ]
                 
-                try await userReadRef.document(issue.id).setData(data)
+                try await userReadRef.document(uniqueId).setData(data)
                 
                 await MainActor.run {
-                    self.readIssueIds.insert(issue.id)
+                    self.readIssueIds.insert(uniqueId)
                     return
                 }
             }

@@ -255,7 +255,7 @@ struct ZineDetailView: View {
                                                 }
                                             }
                                         } label: {
-                                            Image(systemName: readService.isIssueRead(issue.id) ? "checkmark.circle.fill" : "checkmark.circle")
+                                            Image(systemName: readService.isIssueRead(issue.id, in: zine.id) ? "checkmark.circle.fill" : "checkmark.circle")
                                                 .foregroundColor(.blue)
                                         }
                                         
@@ -276,7 +276,7 @@ struct ZineDetailView: View {
                                                 }
                                             }
                                         } label: {
-                                            Image(systemName: bookmarkService.isIssueBookmarked(issue.id) ? "bookmark.fill" : "bookmark")
+                                            Image(systemName: bookmarkService.isIssueBookmarked(issue.id, in: zine.id) ? "bookmark.fill" : "bookmark")
                                                 .foregroundColor(.blue)
                                         }
                                     }

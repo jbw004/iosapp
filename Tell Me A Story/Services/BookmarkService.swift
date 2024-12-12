@@ -26,8 +26,9 @@ class BookmarkService: ObservableObject {
         }
     }
     
-    func isIssueBookmarked(_ issueId: String) -> Bool {
-        bookmarkedIssueIds.contains(issueId)
+    func isIssueBookmarked(_ issueId: String, in zineId: String) -> Bool {
+        let uniqueId = "\(zineId)_\(issueId)"
+        return bookmarkedIssueIds.contains(uniqueId)
     }
     
     func toggleBookmark(for issue: Zine.Issue, in zine: Zine) async throws {
@@ -35,15 +36,16 @@ class BookmarkService: ObservableObject {
             throw BookmarkError.notAuthenticated
         }
         
+        let uniqueId = "\(zine.id)_\(issue.id)"
         let userBookmarksRef = db.collection("users").document(userId)
             .collection("bookmarked_issues")
         
         do {
-            if isIssueBookmarked(issue.id) {
-                try await userBookmarksRef.document(issue.id).delete()
+            if isIssueBookmarked(issue.id, in: zine.id) {
+                try await userBookmarksRef.document(uniqueId).delete()
                 
                 await MainActor.run {
-                    self.bookmarkedIssueIds.remove(issue.id)
+                    self.bookmarkedIssueIds.remove(uniqueId)
                     return
                 }
             } else {
@@ -58,10 +60,10 @@ class BookmarkService: ObservableObject {
                     "publishedDate": issue.publishedDate
                 ]
                 
-                try await userBookmarksRef.document(issue.id).setData(data)
+                try await userBookmarksRef.document(uniqueId).setData(data)
                 
                 await MainActor.run {
-                    self.bookmarkedIssueIds.insert(issue.id)
+                    self.bookmarkedIssueIds.insert(uniqueId)
                     return
                 }
             }
