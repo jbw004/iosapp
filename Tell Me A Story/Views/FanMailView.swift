@@ -39,6 +39,13 @@ struct FanMailView: View {
         }
     }
     
+    var displayedMessages: [FanMailMessage] {
+            let downvoteThreshold = -2  // Messages with votes <= this threshold will be hidden
+            return filteredMessages.filter { message in
+                message.votes > downvoteThreshold
+            }
+        }
+    
     var body: some View {
         VStack(spacing: 0) {
             if showHeader {
@@ -57,7 +64,7 @@ struct FanMailView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(spacing: 12) {
-                        ForEach(filteredMessages) { message in
+                        ForEach(displayedMessages) { message in
                             MessageRow(
                                 message: message,
                                 userVote: fanMailService.userVotes[message.id ?? ""] ?? 0,
@@ -70,8 +77,8 @@ struct FanMailView: View {
                             )
                             .id(message.id)
                         }
-                        
-                        if filteredMessages.isEmpty {
+
+                        if displayedMessages.isEmpty {
                             Text("No messages found")
                                 .foregroundColor(.secondary)
                                 .padding()
