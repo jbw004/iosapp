@@ -14,7 +14,7 @@ enum TabItem: Int, Hashable {
         case .bookmarks: return "Bookmarks"
         case .submit: return "Submit"
         case .history: return "Wrapped"
-        case .discussion: return "Discussion"
+        case .discussion: return "Fan Mail"
         }
     }
     

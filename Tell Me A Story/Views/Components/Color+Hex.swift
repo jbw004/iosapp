@@ -24,4 +24,14 @@ extension Color {
             opacity: Double(a) / 255
         )
     }
+    static let zineColors: [String: Color] = [
+            "bangs_zine": Color(hex: "#2D2D2D"),
+            "rabid_zines": Color(hex: "#C41E3A"),
+            "pink_disco": Color(hex: "#FFB6C1"),
+            "pastel_serenity": Color(hex: "#B8B8B8"),
+            "riot_maiden": Color(hex: "#FF4B4B"),
+            "punk_sleepover": Color(hex: "#8B0000"),
+            "duna_haller": Color(hex: "#8A2BE2"),
+            "played_out": Color(hex: "#E6A8D7")
+        ]
 }

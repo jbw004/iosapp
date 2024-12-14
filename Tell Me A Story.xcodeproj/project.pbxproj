@@ -35,6 +35,8 @@
 		0EAC36592CF42A0B004842B2 /* ZineDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EAC36582CF42A0B004842B2 /* ZineDetailView.swift */; };
 		0EAC365B2CF42A83004842B2 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EAC365A2CF42A83004842B2 /* ImageCache.swift */; };
 		0EAC365D2CF42AE6004842B2 /* ZineRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EAC365C2CF42AE6004842B2 /* ZineRowView.swift */; };
+		0EE44F6B2D0CE5E600BA7269 /* FanMailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EE44F6A2D0CE5E600BA7269 /* FanMailService.swift */; };
+		0EE44F6D2D0CE61900BA7269 /* FanMailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EE44F6C2D0CE61900BA7269 /* FanMailView.swift */; };
 		0EF5EDC52CF6ABB7006E1D10 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 0EF5EDC42CF6ABB7006E1D10 /* FirebaseAnalytics */; };
 		0EF5EDC72CF6ABB7006E1D10 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0EF5EDC62CF6ABB7006E1D10 /* FirebaseAuth */; };
 		0EF5EDC92CF6ABB7006E1D10 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0EF5EDC82CF6ABB7006E1D10 /* FirebaseCore */; };
@@ -83,6 +85,8 @@
 		0EAC36582CF42A0B004842B2 /* ZineDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZineDetailView.swift; sourceTree = "<group>"; };
 		0EAC365A2CF42A83004842B2 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		0EAC365C2CF42AE6004842B2 /* ZineRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZineRowView.swift; sourceTree = "<group>"; };
+		0EE44F6A2D0CE5E600BA7269 /* FanMailService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanMailService.swift; sourceTree = "<group>"; };
+		0EE44F6C2D0CE61900BA7269 /* FanMailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanMailView.swift; sourceTree = "<group>"; };
 		0EF5EDCE2CF6AC58006E1D10 /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
 		0EF5EDD02CF6AC88006E1D10 /* AuthenticationViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationViews.swift; sourceTree = "<group>"; };
 		0EF5EDD22CF6CE18006E1D10 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Tell Me A Story/GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -198,6 +202,7 @@
 				0E6CC8FE2D02CA5800BBB7C8 /* CustomTabBar.swift */,
 				0E6CC9162D0938C100BBB7C8 /* PassportView.swift */,
 				0E6CC9202D0A734F00BBB7C8 /* OnboardingView.swift */,
+				0EE44F6C2D0CE61900BA7269 /* FanMailView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -212,6 +217,7 @@
 				0E6CC8FA2CFF8C1B00BBB7C8 /* NotificationService.swift */,
 				0E6CC9002D02E81300BBB7C8 /* BookmarkService.swift */,
 				0E6CC9042D03B6CA00BBB7C8 /* ReadService.swift */,
+				0EE44F6A2D0CE5E600BA7269 /* FanMailService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -338,6 +344,7 @@
 			files = (
 				0EF5EDD62CF6F127006E1D10 /* AuthenticationButtonView.swift in Sources */,
 				0E6CC91F2D0A0DEF00BBB7C8 /* ZineReadStats.swift in Sources */,
+				0EE44F6B2D0CE5E600BA7269 /* FanMailService.swift in Sources */,
 				0EF5EDD12CF6AC88006E1D10 /* AuthenticationViews.swift in Sources */,
 				0E6CC9212D0A735000BBB7C8 /* OnboardingView.swift in Sources */,
 				0EF5EDE12CF82BD5006E1D10 /* SubmissionFormViews.swift in Sources */,
@@ -366,6 +373,7 @@
 				0E69F7582CF4093E00252A27 /* ZineService.swift in Sources */,
 				0EF5EDE32CF82D19006E1D10 /* ZinePicker.swift in Sources */,
 				0EF5EDDF2CF82BBB006E1D10 /* SubmissionCoordinator.swift in Sources */,
+				0EE44F6D2D0CE61900BA7269 /* FanMailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -35,13 +35,10 @@ struct ContentView: View {
                                     headerTitle: "Bookmarks"
                                 )
                             case .history:
-                                PassportView(selectedFooterTab: $selectedFooterTab)
-                            case .discussion:
-                                CustomNavigationView(
-                                    selectedTab: $selectedTab,
-                                    simplifiedHeader: true,
-                                    headerTitle: "Discussion"
+                                PassportView(selectedFooterTab: $selectedFooterTab
                                 )
+                            case .discussion:
+                                EmptyView()
                             case .submit:
                                 EmptyView()
                             }
@@ -81,15 +78,15 @@ struct ContentView: View {
                         case .history:
                             EmptyView()
                         case .discussion:
-                            DiscussionView()
+                            FanMailView(selectedFooterTab: $selectedFooterTab)
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 
-                if selectedFooterTab != .history {
+                if selectedFooterTab != .history && selectedFooterTab != .discussion {
                     CustomTabBar(selectedTab: $selectedFooterTab,
-                               showingSubmissionSheet: $showingSubmissionSheet)
+                                showingSubmissionSheet: $showingSubmissionSheet)
                 }
             }
             .navigationDestination(for: Zine.self) { zine in
