@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseAuth
+import FirebaseFirestore
 import AuthenticationServices
 import CryptoKit
 
@@ -13,6 +14,7 @@ class AuthenticationService: NSObject, ObservableObject {
     // Needed for Sign in with Apple
     private var currentNonce: String?
     private let analytics = AnalyticsService.shared
+    private let db = Firestore.firestore() 
     
     override init() {
             super.init()
@@ -80,6 +82,50 @@ class AuthenticationService: NSObject, ObservableObject {
                 error: error.localizedDescription
             ))
         }
+    }
+    
+    func deleteAccount() async throws {
+        guard let user = Auth.auth().currentUser else { return }
+        
+        // Start a batch write to delete user data
+        let batch = db.batch()
+        
+        // Delete user's bookmarks
+        let bookmarksRef = db.collection("users").document(user.uid).collection("bookmarked_issues")
+        let bookmarkDocs = try await bookmarksRef.getDocuments()
+        bookmarkDocs.documents.forEach { doc in
+            batch.deleteDocument(doc.reference)
+        }
+        
+        // Delete user's followed zines
+        let followedRef = db.collection("users").document(user.uid).collection("followed_zines")
+        let followedDocs = try await followedRef.getDocuments()
+        followedDocs.documents.forEach { doc in
+            batch.deleteDocument(doc.reference)
+        }
+        
+        // Delete user's read issues
+        let readRef = db.collection("users").document(user.uid).collection("read_issues")
+        let readDocs = try await readRef.getDocuments()
+        readDocs.documents.forEach { doc in
+            batch.deleteDocument(doc.reference)
+        }
+        
+        // Delete user's votes
+        let votesRef = db.collection("user_votes").document(user.uid)
+        batch.deleteDocument(votesRef)
+        
+        // Commit all deletions
+        try await batch.commit()
+        
+        // Finally, delete the user account
+        try await user.delete()
+        
+        // Track the deletion in analytics
+        analytics.trackEvent(.signInFailure(
+            method: "account_deletion",
+            error: "User initiated account deletion"
+        ))
     }
     
     // MARK: - Sign in with Apple
